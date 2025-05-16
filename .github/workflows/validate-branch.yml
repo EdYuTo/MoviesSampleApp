@@ -78,6 +78,7 @@ jobs:
       
       - name: Upload test results
         uses: actions/upload-artifact@v4
+        if: success() || failure()
         with:
           name: TestResults.zip
           path: TestResults.zip
