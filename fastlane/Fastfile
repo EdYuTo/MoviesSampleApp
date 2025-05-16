@@ -46,6 +46,7 @@ platform :ios do
 
     begin
       # https://docs.fastlane.tools/actions/run_tests/#parameters
+      setup_ci if ENV['CI']
       run_tests(
         project: "#{project_name}.xcodeproj",
         scheme: project_name.to_s,
@@ -70,6 +71,7 @@ platform :ios do
     archive_path = "#{project_dir}/build/#{project_name}-iossimulator.xcarchive"
 
     # https://docs.fastlane.tools/actions/build_app/#parameters
+    setup_ci if ENV['CI']
     build_app(
       project: "#{project_name}.xcodeproj",
       scheme: project_name.to_s,
