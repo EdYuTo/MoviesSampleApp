@@ -45,8 +45,10 @@ targets:
     platform: iOS
     sources: [MoviesSampleApp]
     postBuildScripts:
-      - script: chmod +x ./Scripts/swiftlint
-      - script: ./Scripts/swiftlint
+      - script: chmod +x ./Scripts/lint-checker
+        name: Lint permissions
+        basedOnDependencyAnalysis: NO
+      - script: ./Scripts/lint-checker
         name: SwiftLint
         basedOnDependencyAnalysis: NO
     settings:
