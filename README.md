@@ -73,8 +73,8 @@ Excluding ui components, here is how this project will be sctructured:
 
 #### Resource providers
 <div align="center">
-    <img src="docs/src/resource-providers.png" width="131" height="131">
-    <img src="docs/src/notification-center.png" width="131" height="131">
+    <img src="docs/src/resource-providers.png" width="362" height="362">
+    <img src="docs/src/notification-center.png" width="362" height="362">
 </div>
 
 #### Movie list
