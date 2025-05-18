@@ -89,5 +89,6 @@ jobs:
         with:
           path: TestResults.xcresult
           upload-bundles: never
-          show-passed-tests: false
+          show-passed-tests: true
+          show-code-coverage: true
           title: Test report
