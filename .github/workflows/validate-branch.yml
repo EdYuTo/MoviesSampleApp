@@ -84,11 +84,11 @@ jobs:
           path: TestResults.zip
 
       - name: Test report
-        uses: kishikawakatsumi/xcresulttool@v1.7.1
+        uses: slidoapp/xcresulttool@v3.1.0
         if: success() || failure()
         with:
           path: TestResults.xcresult
           upload-bundles: never
-          show-passed-tests: true
+          show-passed-tests: false
           show-code-coverage: true
           title: Test report
