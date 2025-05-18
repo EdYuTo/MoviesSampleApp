@@ -1,0 +1,14 @@
+/* 
+  Localizable.strings
+  MoviesSampleApp
+
+  Created by Edson Yudi Toma on 18/05/25.
+  
+*/
+
+"movieListTitle" = "Lista de filmes";
+"retryButtonTitle" = "Tentar novamente";
+"errorAlertTitle" = "Algo deu errado";
+"releaseDate" = "Data lançamento: %@";
+"internetErrorTitle" = "Erro de conexão";
+"internetErrorMessage" = "Não podemos conectar ao servidor, cheque sua internet e tente novamente";
