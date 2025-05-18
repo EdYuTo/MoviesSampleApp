@@ -66,10 +66,10 @@ platform :ios do
 #### Optional parameters
   * open: true - Open the archive after generation"
   lane :generate_app do |options|
-    generate_project(open: false, pat: false)
+    generate_project(open: false)
     message('Generating .app')
 
-    project_dir = File.expand_path("..", Dir.pwd)
+    project_dir = File.expand_path('..', Dir.pwd)
     archive_path = "#{project_dir}/build/#{project_name}-iossimulator.xcarchive"
 
     # https://docs.fastlane.tools/actions/build_app/#parameters
