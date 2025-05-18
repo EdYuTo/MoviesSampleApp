@@ -42,6 +42,7 @@ final class NetworkProvider {
     }
 }
 
+ // MARK: - NetworkProviderProcotol
 extension NetworkProvider: NetworkProviderProcotol {
     func makeRequest<T: Decodable>(_ request: NetworkRequest) async throws -> NetworkResponse<T> {
         var statusCode = -1
