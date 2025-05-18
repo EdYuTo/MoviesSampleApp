@@ -63,7 +63,7 @@ final class AuthInterceptor: URLProtocol {
 final class AuthorizedURLSession {
     static var defaultSession = URLSession.shared
     static var shared: URLSession {
-        let configuration = URLSessionConfiguration.ephemeral
+        let configuration = URLSessionConfiguration.default
         configuration.protocolClasses = [AuthInterceptor.self]
         return URLSession(configuration: configuration)
     }
