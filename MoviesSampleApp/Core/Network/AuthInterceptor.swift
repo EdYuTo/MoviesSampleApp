@@ -7,6 +7,10 @@
 
 import Foundation
 
+// To enable git tracking of this file, please run the following command:
+// git update-index --no-assume-unchanged MoviesSampleApp/Core/Network/AuthInterceptor.swift
+// Remember to always run git update-index --assume-unchanged MoviesSampleApp/Core/Network/AuthInterceptor.swift
+// to avoid pushing you api key to the repository.
 final class AuthInterceptor: URLProtocol {
     // swiftlint:disable:next line_length superfluous_disable_command
     private static let accessToken = "{API_ACCESS_TOKEN}"
@@ -59,7 +63,7 @@ final class AuthInterceptor: URLProtocol {
 final class AuthorizedURLSession {
     static var defaultSession = URLSession.shared
     static var shared: URLSession {
-        let configuration = URLSessionConfiguration.ephemeral
+        let configuration = URLSessionConfiguration.default
         configuration.protocolClasses = [AuthInterceptor.self]
         return URLSession(configuration: configuration)
     }
