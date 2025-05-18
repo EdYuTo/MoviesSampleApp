@@ -27,7 +27,7 @@ extension MovieListPresenter: MovieListPresenterProtocol {
                     releaseDate: date.formatted(date: .numeric, time: .omitted),
                     poster: Constants.imageBaseUrl + (movie.backdropPath ?? movie.posterPath),
                     score: movie.voteAverage,
-                    originalLanguage: movie.originalLanguage
+                    originalLanguage: movie.originalLanguage ?? String()
                 )
             )
         }
