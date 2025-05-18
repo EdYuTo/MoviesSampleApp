@@ -10,7 +10,7 @@ import UIKit
 final class AsyncImageView: UIImageView {
     // MARK: - Properties
     private let iconSize: CGSize
-    private let networkProvider: NetworkProviderProcotol
+    private let networkProvider: NetworkProviderProtocol
     private var task: Task<Void, Never>?
 
     private lazy var customViews = [loadingView, iconView]
@@ -29,7 +29,7 @@ final class AsyncImageView: UIImageView {
     }()
 
     // MARK: - Life cycle
-    init(iconSize: CGSize, networkProvider: NetworkProviderProcotol = NetworkProvider()) {
+    init(iconSize: CGSize, networkProvider: NetworkProviderProtocol = NetworkProvider()) {
         self.iconSize = iconSize
         self.networkProvider = networkProvider
         super.init(frame: .zero)

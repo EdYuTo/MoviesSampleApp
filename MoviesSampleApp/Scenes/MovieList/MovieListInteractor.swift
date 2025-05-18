@@ -13,11 +13,11 @@ protocol MovieListInteractorProtocol {
 
 final class MovieListInteractor {
     private let presenter: MovieListPresenterProtocol
-    private let networkProvider: NetworkProviderProcotol
+    private let networkProvider: NetworkProviderProtocol
     private var currentPage = 1
     private var isLoading = false
 
-    init(presenter: MovieListPresenterProtocol, networkProvider: NetworkProviderProcotol) {
+    init(presenter: MovieListPresenterProtocol, networkProvider: NetworkProviderProtocol) {
         self.presenter = presenter
         self.networkProvider = networkProvider
     }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol NetworkProviderProcotol {
+protocol NetworkProviderProtocol {
     func makeRequest<T: Decodable>(_ request: NetworkRequest) async throws -> NetworkResponse<T>
     func makeRequest(_ request: NetworkRequest) async throws -> NetworkResponse<Data>
 }
@@ -42,8 +42,8 @@ final class NetworkProvider {
     }
 }
 
- // MARK: - NetworkProviderProcotol
-extension NetworkProvider: NetworkProviderProcotol {
+ // MARK: - NetworkProviderProtocol
+extension NetworkProvider: NetworkProviderProtocol {
     func makeRequest<T: Decodable>(_ request: NetworkRequest) async throws -> NetworkResponse<T> {
         var statusCode = -1
         do {

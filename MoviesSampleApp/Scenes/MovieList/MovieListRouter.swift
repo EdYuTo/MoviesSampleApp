@@ -13,10 +13,10 @@ protocol MovieListRouterProtocol {
 }
 
 final class MovieListRouter {
-    private let networkProvider: NetworkProviderProcotol
+    private let networkProvider: NetworkProviderProtocol
     private weak var view: MovieListViewProtocol?
 
-    init(networkProvider: NetworkProviderProcotol, view: MovieListViewProtocol? = nil) {
+    init(networkProvider: NetworkProviderProtocol, view: MovieListViewProtocol? = nil) {
         self.networkProvider = networkProvider
         self.view = view
     }
