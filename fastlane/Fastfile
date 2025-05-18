@@ -16,7 +16,8 @@ platform :ios do
   desc "Generates the project
 
 #### Optional parameters
-  * open: true - Open the project after generation"
+  * open: true - Open the project after generation
+  * pat: true - Update the access token in the project files"
   lane :generate_project do |options|
     clean_project
     Dir.chdir('..') do
@@ -24,6 +25,7 @@ platform :ios do
       sh 'bundle exec Scripts/xcodegen'
     end
     update_version
+    update_access_token if options[:pat].nil? || options[:pat]
     open_project if options[:open].nil? || options[:open]
   end
 
@@ -39,7 +41,7 @@ platform :ios do
 #### Optional parameters
   * open: true - Open the test results after running tests"
   lane :test_project do |options|
-    generate_project(open: false)
+    generate_project(open: false, pat: false)
     message('Running tests')
 
     actions_config = YAML.load_file('../.actions.yml')
@@ -64,8 +66,7 @@ platform :ios do
 #### Optional parameters
   * open: true - Open the archive after generation"
   lane :generate_app do |options|
-    generate_project(open: false)
-    update_access_token
+    generate_project(open: false, pat: false)
     message('Generating .app')
 
     project_dir = File.expand_path("..", Dir.pwd)

@@ -25,6 +25,7 @@ Generates the project
 
 #### Optional parameters
   * open: true - Open the project after generation
+  * pat: true - Update the access token in the project files
 
 ### ios open_project
 
