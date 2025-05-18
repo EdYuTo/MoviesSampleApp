@@ -25,6 +25,7 @@ Generates the project
 
 #### Optional parameters
   * open: true - Open the project after generation
+  * pat: true - Update the access token in the project files
 
 ### ios open_project
 
@@ -79,6 +80,14 @@ Updates the project version based on version file
 ```
 
 Run swiftlint
+
+### ios update_access_token
+
+```sh
+[bundle exec] fastlane ios update_access_token
+```
+
+Update access token reference
 
 ----
 

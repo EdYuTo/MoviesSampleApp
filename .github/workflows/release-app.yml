@@ -36,6 +36,8 @@ jobs:
         run: |
           bundle install
           bundle exec fastlane generate_app open:false
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       
       - name: Zip build files
         run: |

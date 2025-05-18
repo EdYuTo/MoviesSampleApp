@@ -1,0 +1,14 @@
+/* 
+  Localizable.strings
+  MoviesSampleApp
+
+  Created by Edson Yudi Toma on 18/05/25.
+  
+*/
+
+"movieListTitle" = "Movie list";
+"retryButtonTitle" = "Retry";
+"errorAlertTitle" = "Something went wrong";
+"releaseDate" = "Release date: %@";
+"internetErrorTitle" = "Connection error";
+"internetErrorMessage" = "Something went wrong, check your internet connection and try again";
