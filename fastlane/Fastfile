@@ -65,6 +65,7 @@ platform :ios do
   * open: true - Open the archive after generation"
   lane :generate_app do |options|
     generate_project(open: false)
+    update_access_token
     message('Generating .app')
 
     project_dir = File.expand_path("..", Dir.pwd)
@@ -124,6 +125,34 @@ platform :ios do
     Dir.chdir('..') do
       message('Linting project')
       sh 'bundle exec Scripts/swiftlint' unless ENV['CI']
+    end
+  end
+
+  desc 'Update access token reference'
+  lane :update_access_token do
+    Dir.chdir('..') do
+      if ENV['CI']
+        access_token = ENV['ACCESS_TOKEN']
+      else
+        secrets_file = File.read('.secrets').split
+        access_token = secrets_file[0]
+      end
+
+      file_paths = [
+        'MoviesSampleApp/Core/Network/AuthInterceptor.swift'
+      ]
+      access_token_replace_pattern = '{API_ACCESS_TOKEN}'
+
+      file_paths.each do |file_path|
+        message("Updating access token for file: #{file_path}")
+
+        file_content = File.read(file_path)
+        updated_content = file_content.gsub(access_token_replace_pattern, access_token)
+
+        File.open(file_path, 'w') do |file|
+          file.puts updated_content
+        end
+      end
     end
   end
 end
