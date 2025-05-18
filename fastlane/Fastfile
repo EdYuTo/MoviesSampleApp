@@ -24,6 +24,7 @@ platform :ios do
       sh 'bundle exec Scripts/xcodegen'
     end
     update_version
+    update_access_token
     open_project if options[:open].nil? || options[:open]
   end
 
@@ -124,6 +125,30 @@ platform :ios do
     Dir.chdir('..') do
       message('Linting project')
       sh 'bundle exec Scripts/swiftlint' unless ENV['CI']
+    end
+  end
+
+  desc 'Update access token reference'
+  lane :update_access_token do
+    Dir.chdir('..') do
+      secrets_file = File.read('.secrets').split
+      access_token = secrets_file[0]
+
+      file_paths = [
+        'MoviesSampleApp/Core/Network/AuthInterceptor.swift'
+      ]
+      access_token_replace_pattern = '{API_ACCESS_TOKEN}'
+
+      file_paths.each do |file_path|
+        message("Updating access token for file: #{file_path}")
+
+        file_content = File.read(file_path)
+        updated_content = file_content.gsub(access_token_replace_pattern, access_token)
+
+        File.open(file_path, 'w') do |file|
+          file.puts updated_content
+        end
+      end
     end
   end
 end

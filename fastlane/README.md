@@ -80,6 +80,14 @@ Updates the project version based on version file
 
 Run swiftlint
 
+### ios update_access_token
+
+```sh
+[bundle exec] fastlane ios update_access_token
+```
+
+Update access token reference
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
