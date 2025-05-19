@@ -111,4 +111,4 @@ Here are a couple of references:
 
 ## About icon
 Icon downloaded from: 
-<a href="https://www.flaticon.com/free-icons/video" title="video icons">Video icons created by Freepik - Flaticon</a>
+https://www.iconfinder.com/iconsets/user-interface-777
