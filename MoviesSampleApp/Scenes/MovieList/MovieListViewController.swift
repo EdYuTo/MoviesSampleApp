@@ -64,6 +64,10 @@ extension MovieListViewController: ViewCodeProtocol {
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
+
+    func setupConfigurations() {
+        title = Localizable.movieListTitle.localized
+    }
 }
 
 // MARK: - UITableViewDelegate, UITableViewDataSource
