@@ -13,7 +13,7 @@ final class MovieListCell: UITableViewCell, IdentifiableCell {
 
     // MARK: - Views
     lazy var iconView: AsyncImageView = {
-        let view = AsyncImageView(iconSize: CGSize(width: iconSize, height: iconSize))
+        let view = AsyncImageView()
         view.layer.cornerRadius = iconSize / 2
         view.layer.masksToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -72,6 +72,9 @@ extension MovieListCell: ViewCodeProtocol {
 
     func setupConstraints() {
         NSLayoutConstraint.activate([
+            iconView.widthAnchor.constraint(equalToConstant: iconSize),
+            iconView.heightAnchor.constraint(equalToConstant: iconSize),
+
             mainStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Spacing.x16.value),
             mainStackView.topAnchor.constraint(equalTo: topAnchor, constant: Spacing.x16.value),
             mainStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Spacing.x16.value),

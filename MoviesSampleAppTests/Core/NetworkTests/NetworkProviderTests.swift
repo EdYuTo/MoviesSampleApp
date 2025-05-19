@@ -10,7 +10,7 @@ import MoviesSampleApp
 import XCTest
 
 final class NetworkProviderTests: XCTestCase {
-    private var sut: NetworkProviderProcotol!
+    private var sut: NetworkProviderProtocol!
 
     override func setUp() {
         super.setUp()
