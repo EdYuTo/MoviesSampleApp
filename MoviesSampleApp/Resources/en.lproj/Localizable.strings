@@ -12,6 +12,6 @@
 "releaseDate" = "Release date: %@";
 "internetErrorTitle" = "Connection error";
 "internetErrorMessage" = "Something went wrong, check your internet connection and try again";
-"movieDetailsReleaseDate" = "Release date: %@";
-"movieDetailsGenres" = "Genres: %@";
-"movieDetailsRating" = "Rating: %@";
+"movieDetailsReleaseDate" = "Release date: ";
+"movieDetailsGenres" = "Genres: ";
+"movieDetailsRating" = "Rating: ";

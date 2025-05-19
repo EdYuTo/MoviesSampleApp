@@ -12,6 +12,6 @@
 "releaseDate" = "Data lançamento: %@";
 "internetErrorTitle" = "Erro de conexão";
 "internetErrorMessage" = "Não podemos conectar ao servidor, cheque sua internet e tente novamente";
-"movieDetailsReleaseDate" = "Data de lançamento: %@";
-"movieDetailsGenres" = "Gêneros: %@";
-"movieDetailsRating" = "Avaliação: %@";
+"movieDetailsReleaseDate" = "Data de lançamento: ";
+"movieDetailsGenres" = "Gêneros: ";
+"movieDetailsRating" = "Avaliação: ";
