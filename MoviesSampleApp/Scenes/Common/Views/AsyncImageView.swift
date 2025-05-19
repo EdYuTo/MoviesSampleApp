@@ -9,11 +9,8 @@ import UIKit
 
 final class AsyncImageView: UIImageView {
     // MARK: - Properties
-    private let iconSize: CGSize
     private let networkProvider: NetworkProviderProtocol
     private var task: Task<Void, Never>?
-
-    private lazy var customViews = [loadingView, iconView]
 
     // MARK: - Views
     private lazy var loadingView: UIActivityIndicatorView = {
@@ -22,15 +19,8 @@ final class AsyncImageView: UIImageView {
         return view
     }()
 
-    private lazy var iconView: UIImageView = {
-        let view = UIImageView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-
     // MARK: - Life cycle
-    init(iconSize: CGSize, networkProvider: NetworkProviderProtocol = NetworkProvider()) {
-        self.iconSize = iconSize
+    init(networkProvider: NetworkProviderProtocol = NetworkProvider()) {
         self.networkProvider = networkProvider
         super.init(frame: .zero)
         setupView()
@@ -45,8 +35,12 @@ final class AsyncImageView: UIImageView {
     func startLoading() {
         task?.cancel()
         task = nil
-        updateMainView(with: loadingView)
-        loadingView.startAnimating()
+        animate { [weak self] in
+            guard let self else { return }
+            loadingView.isHidden = false
+            loadingView.startAnimating()
+            image = nil
+        }
     }
 
     func startDownload(url: String) {
@@ -57,33 +51,29 @@ final class AsyncImageView: UIImageView {
                 let request = NetworkRequest(endpoint: url)
                 let response = try await self.networkProvider.makeRequest(request)
                 let uiImage = UIImage(data: response.content)
-                await MainActor.run { [weak self] in
-                    guard let self else { return }
-                    iconView.image = uiImage
-                    updateMainView(with: iconView)
+                await MainActor.run {
+                    self.animate {
+                        self.loadingView.isHidden = true
+                        self.image = uiImage
+                    }
                 }
             } catch {
-                await MainActor.run { [weak self] in
-                    guard let self else { return }
-                    iconView.image = UIImage(systemName: "photo.circle")
-                    iconView.tintColor = .systemGray
-                    updateMainView(with: iconView)
+                await MainActor.run {
+                    self.tintColor = .systemGray
+                    self.animate {
+                        self.loadingView.isHidden = true
+                        self.image = UIImage(systemName: "photo.circle")
+                    }
                 }
             }
         }
     }
 
-    private func updateMainView(with view: UIView?) {
-        guard let view = view else { return }
-        customViews.forEach { view in
-            view.isHidden = true
-        }
+    private func animate(with animation: @escaping () -> Void) {
         UIView.transition(
-            with: view, duration: 0.5,
+            with: self, duration: 0.5,
             options: .transitionCrossDissolve,
-            animations: {
-                view.isHidden = false
-            }
+            animations: animation
         )
         setNeedsLayout()
         layoutIfNeeded()
@@ -94,21 +84,12 @@ final class AsyncImageView: UIImageView {
 extension AsyncImageView: ViewCodeProtocol {
     func setupHierarchy() {
         addSubview(loadingView)
-        addSubview(iconView)
     }
 
     func setupConstraints() {
-        widthAnchor.constraint(equalToConstant: iconSize.width).isActive = true
-
-        let heightConstraint = heightAnchor.constraint(equalToConstant: iconSize.height)
-        heightConstraint.priority = .defaultHigh
-        heightConstraint.isActive = true
-
-        customViews.forEach { view in
-            NSLayoutConstraint.activate([
-                view.widthAnchor.constraint(equalToConstant: iconSize.width),
-                view.heightAnchor.constraint(equalToConstant: iconSize.height)
-            ])
-        }
+        NSLayoutConstraint.activate([
+            loadingView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            loadingView.centerYAnchor.constraint(equalTo: centerYAnchor)
+        ])
     }
 }
