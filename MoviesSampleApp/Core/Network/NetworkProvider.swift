@@ -56,6 +56,9 @@ extension NetworkProvider: NetworkProviderProtocol {
                 content: content
             )
         } catch let error as Swift.DecodingError {
+            #if DEBUG
+            debugPrint("[Response] Decoding rror:", error)
+            #endif
             throw NetworkError.decodingError(description: error.localizedDescription, statusCode: statusCode)
         } catch {
             throw error
@@ -70,8 +73,17 @@ extension NetworkProvider: NetworkProviderProtocol {
             let (data, response) = (result.0, result.1)
 
             guard let response = response as? HTTPURLResponse else {
+                #if DEBUG
+                debugPrint("[Response] Invalid response")
+                #endif
                 throw NetworkError.invalidResponse
             }
+
+            #if DEBUG
+            debugPrint("[Response] status code:", response.statusCode)
+            debugPrint("[Response] headers:", response.allHeaderFields)
+            debugPrint("[Response] data:", String(bytes: data, encoding: .utf8))
+            #endif
 
             return NetworkResponse(
                 statusCode: response.statusCode,
@@ -79,8 +91,14 @@ extension NetworkProvider: NetworkProviderProtocol {
                 content: data
             )
         } catch let error as NSError where ConnectionError(rawValue: error.code) != nil {
+            #if DEBUG
+            debugPrint("[Response] Connection error")
+            #endif
             throw NetworkError.connectionError
         } catch {
+            #if DEBUG
+            debugPrint("[Response] Error:", error)
+            #endif
             throw error
         }
     }
