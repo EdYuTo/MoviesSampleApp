@@ -141,11 +141,26 @@ extension MovieDetailsView: ViewCodeProtocol {
             scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
-            contentStackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: Spacing.x16.value),
-            contentStackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: Spacing.x16.value),
-            contentStackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -Spacing.x16.value),
-            contentStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -Spacing.x16.value),
-            contentStackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -Spacing.x32.value)
+            contentStackView.leadingAnchor.constraint(
+                equalTo: scrollView.leadingAnchor,
+                constant: Spacing.x16.value
+            ),
+            contentStackView.topAnchor.constraint(
+                equalTo: scrollView.topAnchor,
+                constant: Spacing.x16.value
+            ),
+            contentStackView.trailingAnchor.constraint(
+                equalTo: scrollView.trailingAnchor,
+                constant: -Spacing.x16.value
+            ),
+            contentStackView.bottomAnchor.constraint(
+                equalTo: scrollView.bottomAnchor,
+                constant: -Spacing.x16.value
+            ),
+            contentStackView.widthAnchor.constraint(
+                equalTo: scrollView.widthAnchor,
+                constant: -Spacing.x32.value
+            )
         ])
     }
 
