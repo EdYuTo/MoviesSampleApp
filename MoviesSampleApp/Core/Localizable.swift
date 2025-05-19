@@ -14,6 +14,9 @@ enum Localizable: String {
     case releaseDate
     case internetErrorTitle
     case internetErrorMessage
+    case movieDetailsReleaseDate
+    case movieDetailsGenres
+    case movieDetailsRating
 
     var localized: String {
         NSLocalizedString(rawValue, comment: String())
