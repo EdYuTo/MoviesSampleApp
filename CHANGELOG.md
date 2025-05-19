@@ -21,6 +21,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0]
+
+### Added
+Movie details first implementation
+
+---
+
 ## [0.2.0]
 
 ### Added
