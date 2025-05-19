@@ -64,6 +64,10 @@ extension MovieListViewController: ViewCodeProtocol {
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
+
+    func setupConfigurations() {
+        title = Localizable.movieListTitle.localized
+    }
 }
 
 // MARK: - UITableViewDelegate, UITableViewDataSource
@@ -157,45 +161,26 @@ extension MovieListViewController: MovieListViewProtocol {
 
     func displayError() {
         if dataSource.count == 0 {
-            displayError(
+            let alert = makeAlertView(
                 title: Localizable.errorAlertTitle.localized,
                 buttonTitle: Localizable.retryButtonTitle.localized
             ) { [weak self] in
                 self?.interactor.fetchData()
             }
+            router.present(alert)
         } else {
             replaceLastState(with: .error)
         }
     }
 
     func displayInternetError() {
-        displayError(
+        let alert = makeAlertView(
             title: Localizable.internetErrorTitle.localized,
             description: Localizable.internetErrorMessage.localized,
             buttonTitle: Localizable.retryButtonTitle.localized
         ) { [weak self] in
             self?.interactor.fetchData()
         }
-    }
-
-    private func displayError(
-        title: String,
-        description: String? = nil,
-        buttonTitle: String,
-        action: (() -> Void)?
-    ) {
-        let alert = UIAlertController(
-            title: title,
-            message: description,
-            preferredStyle: .alert
-        )
-        let action = UIAlertAction(
-            title: buttonTitle,
-            style: .default
-        ) { _ in
-            action?()
-        }
-        alert.addAction(action)
         router.present(alert)
     }
 

@@ -13,10 +13,10 @@ protocol MovieListRouterProtocol {
 }
 
 final class MovieListRouter {
-    private let networkProvider: NetworkProviderProcotol
+    private let networkProvider: NetworkProviderProtocol
     private weak var view: MovieListViewProtocol?
 
-    init(networkProvider: NetworkProviderProcotol, view: MovieListViewProtocol? = nil) {
+    init(networkProvider: NetworkProviderProtocol, view: MovieListViewProtocol? = nil) {
         self.networkProvider = networkProvider
         self.view = view
     }
@@ -34,8 +34,10 @@ final class MovieListRouter {
 // MARK: - MovieListRouterProtocol
 extension MovieListRouter: MovieListRouterProtocol {
     func openDetails(id: Int) {
-        let detailsViewController = UIViewController()
-        view?.navigationController?.present(detailsViewController, animated: true)
+        let detailsRouter = MovieDetailsRouter(id: id, networkProvider: networkProvider)
+        let detailsViewController = detailsRouter.start()
+        let navigationController = UINavigationController(rootViewController: detailsViewController)
+        view?.navigationController?.present(navigationController, animated: true)
     }
 
     func present(_ viewController: UIViewController) {

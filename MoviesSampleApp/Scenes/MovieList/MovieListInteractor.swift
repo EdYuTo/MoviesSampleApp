@@ -13,11 +13,11 @@ protocol MovieListInteractorProtocol {
 
 final class MovieListInteractor {
     private let presenter: MovieListPresenterProtocol
-    private let networkProvider: NetworkProviderProcotol
+    private let networkProvider: NetworkProviderProtocol
     private var currentPage = 1
     private var isLoading = false
 
-    init(presenter: MovieListPresenterProtocol, networkProvider: NetworkProviderProcotol) {
+    init(presenter: MovieListPresenterProtocol, networkProvider: NetworkProviderProtocol) {
         self.presenter = presenter
         self.networkProvider = networkProvider
     }
@@ -28,24 +28,25 @@ extension MovieListInteractor: MovieListInteractorProtocol {
     func fetchData() {
         guard !isLoading else { return }
         isLoading = true
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
-                let local = getLocale()
+                let local = Locale.customLanguageCode
                 let request = movieListRequest(page: currentPage, locale: local)
                 let response: NetworkResponse<MovieListRemoteModel> = try await networkProvider.makeRequest(request)
                 await MainActor.run {
-                    presenter.presentData(movieList: response.content)
-                    currentPage += 1
-                    isLoading = false
+                    self.presenter.presentData(movieList: response.content)
+                    self.currentPage += 1
+                    self.isLoading = false
                 }
             } catch {
                 await MainActor.run {
                     if let error = error as? NetworkError, case .connectionError = error {
-                        presenter.presentInternetError()
+                        self.presenter.presentInternetError()
                     } else {
-                        presenter.presentFetchError()
+                        self.presenter.presentFetchError()
                     }
-                    isLoading = false
+                    self.isLoading = false
                 }
             }
         }
@@ -56,21 +57,9 @@ fileprivate extension MovieListInteractor {
     // MARK: - Constants
     enum Constants {
         static let firstPage = 1
-        static let defaultLanguageCode = "en"
-        static let defaultRegionCode = "US"
     }
 
     // MARK: - Helpers
-    func getLocale() -> String {
-        if #available(iOS 16, *) {
-            return Locale.current.identifier(.bcp47)
-        } else {
-            let languageCode = Locale.current.languageCode ?? Constants.defaultLanguageCode
-            let regionCode = Locale.current.regionCode ?? Constants.defaultRegionCode
-            return "\(languageCode)-\(regionCode)"
-        }
-    }
-
     func movieListRequest(page: Int, locale: String) -> NetworkRequest {
         NetworkRequest(
             endpoint: "https://api.themoviedb.org/3/discover/movie",

@@ -47,12 +47,14 @@ targets:
     postBuildScripts:
       - script: chmod +x ./Scripts/lint-checker
         name: Lint permissions
-        basedOnDependencyAnalysis: NO
+        basedOnDependencyAnalysis: 'NO'
       - script: ./Scripts/lint-checker
         name: SwiftLint
-        basedOnDependencyAnalysis: NO
+        basedOnDependencyAnalysis: 'NO'
     settings:
       base:
+        ASSETCATALOG_COMPILER_APPICON_NAME: 'App Icon'
+        ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: YES
         INFOPLIST_FILE: MoviesSampleApp/Resources/Info.plist
 
   MoviesSampleAppTests:
