@@ -28,24 +28,25 @@ extension MovieListInteractor: MovieListInteractorProtocol {
     func fetchData() {
         guard !isLoading else { return }
         isLoading = true
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 let local = Locale.customLanguageCode
                 let request = movieListRequest(page: currentPage, locale: local)
                 let response: NetworkResponse<MovieListRemoteModel> = try await networkProvider.makeRequest(request)
                 await MainActor.run {
-                    presenter.presentData(movieList: response.content)
-                    currentPage += 1
-                    isLoading = false
+                    self.presenter.presentData(movieList: response.content)
+                    self.currentPage += 1
+                    self.isLoading = false
                 }
             } catch {
                 await MainActor.run {
                     if let error = error as? NetworkError, case .connectionError = error {
-                        presenter.presentInternetError()
+                        self.presenter.presentInternetError()
                     } else {
-                        presenter.presentFetchError()
+                        self.presenter.presentFetchError()
                     }
-                    isLoading = false
+                    self.isLoading = false
                 }
             }
         }
