@@ -96,5 +96,19 @@ Excluding ui components, here is how this project will be sctructured:
 
 As a side note, this design document was created before the actual implementation of the app (as it should be haha). So if there are any differences between both, something might had happened and it would be a good point for discussions on why the change.
 
-## TBD
+## About the api
 Add anything else here
+
+This project uses [TMDB](https://developer.themoviedb.org/docs/getting-started)'s api.
+
+Here are a couple of references:
+
+* [Movie listing](https://developer.themoviedb.org/reference/discover-movie)
+* [Genres](https://developer.themoviedb.org/reference/genre-movie-list)
+* [Details](https://developer.themoviedb.org/reference/movie-details)
+* [Fetching images](https://developer.themoviedb.org/docs/image-basics)
+* [TMDB](https://www.themoviedb.org/)
+
+## About icon
+Icon downloaded from: 
+<a href="https://www.flaticon.com/free-icons/video" title="video icons">Video icons created by Freepik - Flaticon</a>
