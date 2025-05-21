@@ -108,8 +108,6 @@ Excluding ui components, here is how this project will be sctructured:
 As a side note, this design document was created before the actual implementation of the app (as it should be haha). So if there are any differences between both, something might had happened and it would be a good point for discussions on why the change.
 
 ## About the api
-Add anything else here
-
 This project uses [TMDB](https://developer.themoviedb.org/docs/getting-started)'s api.
 
 Here are a couple of references:
