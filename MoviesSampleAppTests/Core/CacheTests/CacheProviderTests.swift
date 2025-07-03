@@ -5,6 +5,7 @@
 //  Created by Edson Yudi Toma on 02/07/25.
 //
 
+import CryptoKit
 @testable
 import MoviesSampleApp
 import XCTest
@@ -14,13 +15,28 @@ final class CacheProviderTests: XCTestCase {
     func testUrlProperlySetOnGet() async {
         let key = "key"
         let url = URL(string: "path")!
+        let hashedKey = hashedKey(key)
+
         let sut = CacheProvider(storagePath: url, fileAccessorProvider: { newUrl in
-            XCTAssertEqual(newUrl, url.appendingPathComponent("MoviesSample\(key.hashValue).store"))
+            XCTAssertEqual(newUrl, url.appendingPathComponent(hashedKey))
             return FileAccessorMock()
         })
         do {
             let _: String = try await sut.get(key: key)
         } catch {}
+    }
+
+    func testInvalidKeyOnGet() async {
+        let (sut, _) = makeSut()
+
+        do {
+            let _: String = try await sut.get(key: Unencodable())
+            XCTFail("Expect to throw an error")
+        } catch {
+            if let error = error as? CacheError, case .invalidKey = error {} else {
+                XCTFail("Should've thrown .invalidKey error, but threw \(error) instead")
+            }
+        }
     }
 
     func testEmptyErrorOnGet() async {
@@ -67,13 +83,28 @@ final class CacheProviderTests: XCTestCase {
     func testUrlProperlySetOnSet() async {
         let key = "key"
         let url = URL(string: "path")!
+        let hashedKey = hashedKey(key)
+
         let sut = CacheProvider(storagePath: url, fileAccessorProvider: { newUrl in
-            XCTAssertEqual(newUrl, url.appendingPathComponent("MoviesSample\(key.hashValue).store"))
+            XCTAssertEqual(newUrl, url.appendingPathComponent(hashedKey))
             return FileAccessorMock()
         })
         do {
             try await sut.set(key: key, value: "")
         } catch {}
+    }
+
+    func testInvalidKeyOnSet() async {
+        let (sut, _) = makeSut()
+
+        do {
+            try await sut.set(key: Unencodable(), value: "value")
+            XCTFail("Expect to throw an error")
+        } catch {
+            if let error = error as? CacheError, case .invalidKey = error {} else {
+                XCTFail("Should've thrown .invalidKey error, but threw \(error) instead")
+            }
+        }
     }
 
     func testEncodingErrorOnSet() async {
@@ -121,13 +152,28 @@ final class CacheProviderTests: XCTestCase {
     func testUrlProperlySetOnDelete() async {
         let key = "key"
         let url = URL(string: "path")!
+        let hashedKey = hashedKey(key)
+
         let sut = CacheProvider(storagePath: url, fileAccessorProvider: { newUrl in
-            XCTAssertEqual(newUrl, url.appendingPathComponent("MoviesSample\(key.hashValue).store"))
+            XCTAssertEqual(newUrl, url.appendingPathComponent(hashedKey))
             return FileAccessorMock()
         })
         do {
             try await sut.delete(key: key)
         } catch {}
+    }
+
+    func testInvalidKeyOnDelete() async {
+        let (sut, _) = makeSut()
+
+        do {
+            try await sut.delete(key: Unencodable())
+            XCTFail("Expect to throw an error")
+        } catch {
+            if let error = error as? CacheError, case .invalidKey = error {} else {
+                XCTFail("Should've thrown .invalidKey error, but threw \(error) instead")
+            }
+        }
     }
 
     func testUnknownErrorOnDelete() async {
@@ -174,6 +220,11 @@ private extension CacheProviderTests {
         trackMemoryLeaks(cache)
         trackMemoryLeaks(fileAccessor)
         return (cache, fileAccessor)
+    }
+
+    func hashedKey(_ key: Encodable) -> String {
+        let data = try! JSONEncoder().encode(key)
+        return SHA256.hash(data: data).compactMap { String(format: "%02x", $0) }.joined()
     }
 
     struct Unencodable: Codable {
