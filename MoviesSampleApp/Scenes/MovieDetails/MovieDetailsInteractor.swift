@@ -87,4 +87,3 @@ private extension MovieDetailsInteractor {
         await favoriteList().contains(id)
     }
 }
-
