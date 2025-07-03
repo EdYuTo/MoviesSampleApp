@@ -2,17 +2,18 @@
 
 ## TODO list
 
-- [x] ci/cd
-- [x] core networking
-- [x] core caching
-- [x] movie listing
-- [ ] movie searching
-- [x] movie details
-- [ ] favoriting / saving movies
-- [ ] better ui / animations
+- [x] Ci/cd
+- [x] Core networking
+- [x] Core caching
+- [x] Movie listing
+- [ ] Movie searching
+- [x] Movie details
+- [ ] Favoriting / saving movies
+- [ ] Better ui / animations
 - [ ] Add observability / logging lib
 - [ ] Migrate to combine
 - [ ] Migrate to SwiftTesting
+- [ ] Add cache expiry logic
 
 ## Dependencies
 This projects uses [Xcodegen](https://github.com/yonaskolb/XcodeGen), [Fastlane](https://fastlane.tools/) and [Bundler](https://bundler.io/) to minimize your time setting up everything! It also has [Swiftlint](https://realm.github.io/SwiftLint/) to ensure code coding style and conventions.
