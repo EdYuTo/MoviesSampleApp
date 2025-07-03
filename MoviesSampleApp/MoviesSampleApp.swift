@@ -33,6 +33,19 @@ final class MoviesSampleApp: UIResponder, UIApplicationDelegate {
     }
 
     private func cacheDirectory() -> URL {
-        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ?? URL(fileURLWithPath: "/dev/null")
+        let defaultUrl = URL(fileURLWithPath: "/dev/null")
+        guard let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first,
+              let bundleId = Bundle.main.bundleIdentifier else {
+            return defaultUrl
+        }
+        do {
+            let directory = url
+                .appendingPathComponent(bundleId)
+                .appendingPathComponent("Application")
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true, attributes: nil)
+            return directory
+        } catch {
+            return defaultUrl
+        }
     }
 }
