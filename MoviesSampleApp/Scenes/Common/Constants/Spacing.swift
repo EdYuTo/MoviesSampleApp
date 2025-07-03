@@ -17,6 +17,7 @@ enum Spacing: CGFloat {
     case x24 = 24
     case x28 = 28
     case x32 = 32
+    case x48 = 48
     case x64 = 64
     case x128 = 128
 
