@@ -125,7 +125,11 @@ platform :ios do
   lane :lint_project do
     Dir.chdir('..') do
       message('Linting project')
-      sh 'bundle exec Scripts/swiftlint' unless ENV['CI']
+      begin
+        sh 'bundle exec Scripts/swiftlint' unless ENV['CI']
+      rescue StandardError
+        error('SwiftLint failed, please check log above for more information')
+      end
     end
   end
 

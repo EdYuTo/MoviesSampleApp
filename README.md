@@ -1,5 +1,18 @@
 # MoviesSampleApp
 
+## TODO list
+
+- [x] ci/cd
+- [x] core networking
+- [ ] core caching
+- [x] movie listing
+- [ ] movie searching
+- [x] movie details
+- [ ] favoriting / saving movies
+- [ ] better ui / animations
+- [ ] Add observability
+- [ ] Migrate to combine
+
 ## Dependencies
 This projects uses [Xcodegen](https://github.com/yonaskolb/XcodeGen), [Fastlane](https://fastlane.tools/) and [Bundler](https://bundler.io/) to minimize your time setting up everything! It also has [Swiftlint](https://realm.github.io/SwiftLint/) to ensure code coding style and conventions.
 
@@ -97,8 +110,6 @@ Excluding ui components, here is how this project will be sctructured:
 As a side note, this design document was created before the actual implementation of the app (as it should be haha). So if there are any differences between both, something might had happened and it would be a good point for discussions on why the change.
 
 ## About the api
-Add anything else here
-
 This project uses [TMDB](https://developer.themoviedb.org/docs/getting-started)'s api.
 
 Here are a couple of references:
