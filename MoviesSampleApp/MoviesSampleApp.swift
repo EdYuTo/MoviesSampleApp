@@ -16,7 +16,8 @@ final class MoviesSampleApp: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         let networkProvider = NetworkProvider(session: AuthorizedURLSession.shared)
-        let router = MovieListRouter(networkProvider: networkProvider)
+        let cacheProvider = CacheProvider(storagePath: cacheDirectory())
+        let router = MovieListRouter(networkProvider: networkProvider, cacheProvider: cacheProvider)
         let initialViewController = router.start()
         let navigationController = UINavigationController(rootViewController: initialViewController)
 
@@ -29,5 +30,22 @@ final class MoviesSampleApp: UIResponder, UIApplicationDelegate {
         window?.makeKeyAndVisible()
 
         return true
+    }
+
+    private func cacheDirectory() -> URL {
+        let defaultUrl = URL(fileURLWithPath: "/dev/null")
+        guard let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first,
+              let bundleId = Bundle.main.bundleIdentifier else {
+            return defaultUrl
+        }
+        do {
+            let directory = url
+                .appendingPathComponent(bundleId)
+                .appendingPathComponent("Application")
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true, attributes: nil)
+            return directory
+        } catch {
+            return defaultUrl
+        }
     }
 }

@@ -14,11 +14,18 @@ protocol MovieDetailsRouterProtocol {
 final class MovieDetailsRouter {
     private let id: Int
     private let networkProvider: NetworkProviderProtocol
+    private let cacheProvider: CacheProviderProtocol
     private weak var view: MovieDetailsViewProtocol?
 
-    init(id: Int, networkProvider: NetworkProviderProtocol, view: MovieDetailsViewProtocol? = nil) {
+    init(
+        id: Int,
+        networkProvider: NetworkProviderProtocol,
+        cacheProvider: CacheProviderProtocol,
+        view: MovieDetailsViewProtocol? = nil
+    ) {
         self.id = id
         self.networkProvider = networkProvider
+        self.cacheProvider = cacheProvider
         self.view = view
     }
 
@@ -27,6 +34,7 @@ final class MovieDetailsRouter {
         let interactor = MovieDetailsInteractor(
             presenter: presenter,
             networkProvider: networkProvider,
+            cacheProvider: cacheProvider,
             id: id
         )
         let viewController = MovieDetailsViewController(interactor: interactor, router: self)
