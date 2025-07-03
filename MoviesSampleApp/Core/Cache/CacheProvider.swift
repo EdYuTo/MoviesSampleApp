@@ -8,9 +8,11 @@
 import Foundation
 
 protocol CacheProviderProtocol {
-    func get<T: Codable>(key: AnyHashable) async throws -> T
-    func set<T: Codable>(key: AnyHashable, value: T) async throws
-    func delete(key: AnyHashable) async throws
+    typealias Key = Encodable
+
+    func get<T: Codable>(key: Key) async throws -> T
+    func set<T: Codable>(key: Key, value: T) async throws
+    func delete(key: Key) async throws
 }
 
 final class CacheProvider {
@@ -28,16 +30,19 @@ final class CacheProvider {
         self.fileAccessorProvider = fileAccessorProvider
     }
 
-    private func getFileAccessor(forKey key: AnyHashable) -> FileAccessorProtocol {
-        let url = storagePath.appendingPathComponent("MoviesSample\(key.hashValue).store")
+    private func getFileAccessor(forKey key: Key) throws -> FileAccessorProtocol {
+        guard let hashedKey = key.cacheKey else {
+            throw CacheError.invalidKey
+        }
+        let url = storagePath.appendingPathComponent(hashedKey)
         return fileAccessorProvider(url)
     }
 }
 
 // MARK: - CacheProviderProtocol
 extension CacheProvider: CacheProviderProtocol {
-    func get<T: Codable>(key: AnyHashable) async throws -> T {
-        let accessor = getFileAccessor(forKey: key)
+    func get<T: Codable>(key: Key) async throws -> T {
+        let accessor = try getFileAccessor(forKey: key)
         guard let data = try? await accessor.get() else {
             throw CacheError.notFound(key: key)
         }
@@ -50,9 +55,9 @@ extension CacheProvider: CacheProviderProtocol {
         }
     }
 
-    func set<T: Codable>(key: AnyHashable, value: T) async throws {
+    func set<T: Codable>(key: Key, value: T) async throws {
+        let accessor = try getFileAccessor(forKey: key)
         do {
-            let accessor = getFileAccessor(forKey: key)
             let encoder = JSONEncoder()
             let timestampedObject = TimestampedData(data: value, timestamp: dateProvider())
             let timestampedData = try encoder.encode(timestampedObject)
@@ -64,8 +69,8 @@ extension CacheProvider: CacheProviderProtocol {
         }
     }
 
-    func delete(key: AnyHashable) async throws {
-        let accessor = getFileAccessor(forKey: key)
+    func delete(key: Key) async throws {
+        let accessor = try getFileAccessor(forKey: key)
         do {
             try await accessor.delete()
         } catch {
