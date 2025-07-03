@@ -10,6 +10,7 @@ import UIKit
 class MovieDetailsView: UIView {
     // MARK: - Properties
     private let posterHeight = 250.0
+    private let toggleFavoriteProvider: VoidCallback
 
     // MARK: - Views
     private lazy var scrollView: UIScrollView = {
@@ -25,7 +26,8 @@ class MovieDetailsView: UIView {
             overviewLabel,
             releaseDateLabel,
             genresLabel,
-            ratingLabel
+            ratingLabel,
+            favoriteIcon
         ])
         stackView.axis = .vertical
         stackView.spacing = Spacing.x8.value
@@ -76,8 +78,30 @@ class MovieDetailsView: UIView {
         return label
     }()
 
+    private lazy var favoritedImage: UIImage? = {
+        UIImage(systemName: "heart.fill")?.withRenderingMode(.alwaysTemplate)
+    }()
+
+    private lazy var unfavoritedImage: UIImage? = {
+        UIImage(systemName: "heart")?.withRenderingMode(.alwaysTemplate)
+    }()
+
+    private lazy var favoriteIcon: UIImageView = {
+        let imageView = UIImageView(image: unfavoritedImage)
+        let gestureRecognizer = UITapGestureRecognizer(
+            target: self,
+            action: #selector(toggleFavorite)
+        )
+        imageView.addGestureRecognizer(gestureRecognizer)
+        imageView.contentMode = .scaleAspectFit
+        imageView.isUserInteractionEnabled = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+
     // MARK: - Life cycle
-    init() {
+    init(_ toggleFavoriteProvider: @escaping VoidCallback) {
+        self.toggleFavoriteProvider = toggleFavoriteProvider
         super.init(frame: .zero)
         setupView()
     }
@@ -104,6 +128,32 @@ class MovieDetailsView: UIView {
         )
         overviewLabel.text = movie.overview
         posterImageView.startDownload(url: movie.image)
+        if movie.isFavorite {
+            favorite()
+        } else {
+            unfavorite()
+        }
+    }
+
+    func favorite() {
+        animate(view: favoriteIcon) { [weak self] in
+            guard let self else { return }
+            favoriteIcon.image = favoritedImage
+            favoriteIcon.tintColor = .red
+        }
+    }
+
+    func unfavorite() {
+        animate(view: favoriteIcon) { [weak self] in
+            guard let self else { return }
+            favoriteIcon.image = unfavoritedImage
+            favoriteIcon.tintColor = .lightGray
+        }
+    }
+
+    @objc
+    private func toggleFavorite() {
+        toggleFavoriteProvider()
     }
 
     private func makeLabel(title: String, description: String) -> NSAttributedString {
@@ -123,6 +173,14 @@ class MovieDetailsView: UIView {
         attributed.append(normalAttributed)
 
         return attributed
+    }
+
+    private func animate(view: UIView, with animation: @escaping () -> Void) {
+        UIView.transition(
+            with: view, duration: 0.35,
+            options: .curveEaseOut,
+            animations: animation
+        )
     }
 }
 
@@ -160,12 +218,16 @@ extension MovieDetailsView: ViewCodeProtocol {
             contentStackView.widthAnchor.constraint(
                 equalTo: scrollView.widthAnchor,
                 constant: -Spacing.x32.value
-            )
+            ),
+
+            favoriteIcon.widthAnchor.constraint(equalToConstant: Spacing.x48.value),
+            favoriteIcon.heightAnchor.constraint(equalToConstant: Spacing.x48.value)
         ])
     }
 
     // MARK: - Setup
     func setupConfigurations() {
         posterImageView.startLoading()
+        bringSubviewToFront(favoriteIcon)
     }
 }

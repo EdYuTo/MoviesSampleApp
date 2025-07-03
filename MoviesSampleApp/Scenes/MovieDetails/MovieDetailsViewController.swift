@@ -11,6 +11,8 @@ protocol MovieDetailsViewProtocol: UIViewController {
     func displayData(movieDetails: MovieDetailsViewModel)
     func displayError()
     func displayInternetError()
+    func displayFavorite()
+    func displayUnfavorite()
 }
 
 final class MovieDetailsViewController: UIViewController {
@@ -26,7 +28,10 @@ final class MovieDetailsViewController: UIViewController {
     }()
 
     private lazy var customView: MovieDetailsView = {
-        let view = MovieDetailsView()
+        let view = MovieDetailsView { [weak self] in
+            guard let self else { return }
+            interactor.toggleFavorite()
+        }
         view.isHidden = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -118,5 +123,13 @@ extension MovieDetailsViewController: MovieDetailsViewProtocol {
             self?.interactor.fetchData()
         }
         router.present(alert)
+    }
+
+    func displayFavorite() {
+        customView.favorite()
+    }
+
+    func displayUnfavorite() {
+        customView.unfavorite()
     }
 }

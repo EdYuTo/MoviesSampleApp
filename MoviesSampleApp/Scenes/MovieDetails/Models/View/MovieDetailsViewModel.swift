@@ -12,4 +12,6 @@ struct MovieDetailsViewModel {
     let rating: String
     let overview: String
     let image: String
+    let isFavorite: Bool
+    let id: Int
 }
