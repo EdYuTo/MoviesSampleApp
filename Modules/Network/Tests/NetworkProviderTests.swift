@@ -5,8 +5,7 @@
 //  Created by Edson Yudi Toma on 17/05/25.
 //
 
-@testable
-import MoviesSampleApp
+import NetworkProvider
 import XCTest
 
 final class NetworkProviderTests: XCTestCase {
@@ -111,8 +110,9 @@ final class NetworkProviderTests: XCTestCase {
             _ = try await sut.makeRequest(.init(endpoint: #file))
             XCTFail("Error should be \(NetworkError.invalidResponse) but didn't throw")
         } catch {
-            guard let error = NetworkError(error: error as NSError), case .invalidResponse = error else {
-                XCTFail("Error should be \(NetworkError.invalidResponse) but is \(error)")
+            let error = (error as NSError)
+            let expectedError = NetworkError.invalidResponse as NSError
+            guard error.domain == expectedError.domain, error.code == expectedError.code else {                XCTFail("Error should be \(NetworkError.invalidResponse) but is \(error)")
                 return
             }
         }

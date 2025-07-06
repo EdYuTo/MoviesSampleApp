@@ -1,21 +1,16 @@
 //
 //  NetworkProvider.swift
-//  MoviesSampleApp
+//  Network
 //
-//  Created by Edson Yudi Toma on 17/05/25.
+//  Created by Edson Yudi Toma on 06/07/25.
 //
 
 import Foundation
 
-protocol NetworkProviderProtocol {
-    func makeRequest<T: Decodable>(_ request: NetworkRequest) async throws -> NetworkResponse<T>
-    func makeRequest(_ request: NetworkRequest) async throws -> NetworkResponse<Data>
-}
-
-final class NetworkProvider {
+public final class NetworkProvider {
     private let session: URLSession
 
-    init(session: URLSession = .shared) {
+    public init(session: URLSession = .shared) {
         self.session = session
     }
 
@@ -42,9 +37,9 @@ final class NetworkProvider {
     }
 }
 
- // MARK: - NetworkProviderProtocol
+// MARK: - NetworkProviderProtocol
 extension NetworkProvider: NetworkProviderProtocol {
-    func makeRequest<T: Decodable>(_ request: NetworkRequest) async throws -> NetworkResponse<T> {
+    public func makeRequest<T: Decodable>(_ request: NetworkRequest) async throws -> NetworkResponse<T> {
         var statusCode = -1
         do {
             let response = try await makeRequest(request)
@@ -62,7 +57,7 @@ extension NetworkProvider: NetworkProviderProtocol {
         }
     }
 
-    func makeRequest(_ request: NetworkRequest) async throws -> NetworkResponse<Data> {
+    public func makeRequest(_ request: NetworkRequest) async throws -> NetworkResponse<Data> {
         let urlRequest = try buildRequest(with: request)
 
         do {

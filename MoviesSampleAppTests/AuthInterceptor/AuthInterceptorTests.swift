@@ -7,6 +7,7 @@
 
 @testable
 import MoviesSampleApp
+import NetworkProvider
 import XCTest
 
 final class AuthInterceptorTests: XCTestCase {

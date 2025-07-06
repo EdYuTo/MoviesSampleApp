@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NetworkProvider
 
 // To enable git tracking of this file, please run the following command:
 // git update-index --no-assume-unchanged MoviesSampleApp/Core/Network/AuthInterceptor.swift

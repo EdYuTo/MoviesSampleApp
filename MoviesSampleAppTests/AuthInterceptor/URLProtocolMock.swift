@@ -6,8 +6,7 @@
 //
 
 import Foundation
-@testable
-import MoviesSampleApp
+import NetworkProvider
 
 final class URLProtocolMock: URLProtocol {
     private static let semaphore = DispatchSemaphore(value: 1)

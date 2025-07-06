@@ -5,6 +5,7 @@
 //  Created on 05/15/2025.
 //
 
+import NetworkProvider
 import SwiftUI
 
 @main

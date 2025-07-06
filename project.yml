@@ -39,11 +39,17 @@ settings:
     Release:
       SWIFT_COMPILATION_MODE: wholemodule
 
+projectReferences:
+  Network:
+    path: Modules/Network/Network.xcodeproj
+
 targets:
   MoviesSampleApp:
     type: application
     platform: iOS
     sources: [MoviesSampleApp]
+    dependencies:
+      - target: Network/NetworkProvider
     postBuildScripts:
       - script: chmod +x ./Scripts/lint-checker
         name: Lint permissions
@@ -81,3 +87,24 @@ targets:
         ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: 'YES'
         GENERATE_INFOPLIST_FILE: 'YES'
         TEST_TARGET_NAME: MoviesSampleApp
+  
+schemes:
+  MoviesSampleApp:
+    build:
+      targets:
+        MoviesSampleApp: all
+        MoviesSampleAppTests: [test]
+        MoviesSampleAppUITests: [test]
+        Network/NetworkProvider: [test]
+    test:
+      gatherCoverageData: YES
+      coverageTargets:
+        - MoviesSampleApp
+        - Network/NetworkProvider
+      targets:
+        - name: MoviesSampleAppTests
+          paralelizable: true
+        - name: MoviesSampleAppUITests
+          paralelizable: true
+        - name: Network/NetworkProviderTests
+          paralelizable: true

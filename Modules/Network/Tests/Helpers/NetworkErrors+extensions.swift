@@ -6,8 +6,7 @@
 //
 
 import Foundation
-@testable
-import MoviesSampleApp
+import NetworkProvider
 
 extension NetworkError {
     init?(error: NSError) {

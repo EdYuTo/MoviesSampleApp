@@ -5,7 +5,7 @@
 //  Created by Edson Yudi Toma on 17/05/25.
 //
 
-enum NetworkError: Error {
+public enum NetworkError: Error {
     case connectionError
     case decodingError(description: String, statusCode: Int)
     case invalidParams

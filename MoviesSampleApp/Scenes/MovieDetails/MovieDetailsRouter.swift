@@ -5,6 +5,7 @@
 //  Created by Edson Yudi Toma on 18/05/25.
 //
 
+import NetworkProvider
 import UIKit
 
 protocol MovieDetailsRouterProtocol {
