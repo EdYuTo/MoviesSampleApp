@@ -42,6 +42,8 @@ settings:
 projectReferences:
   Cache:
     path: Modules/Cache/Cache.xcodeproj
+  Logger:
+    path: Modules/Logger/DebugLogger.xcodeproj
   Network:
     path: Modules/Network/Network.xcodeproj
 
@@ -52,6 +54,7 @@ targets:
     sources: [MoviesSampleApp]
     dependencies:
       - target: Cache/CacheProvider
+      - target: Logger/DebugLoggerProvider
       - target: Network/NetworkProvider
     postBuildScripts:
       - script: chmod +x ./Scripts/lint-checker

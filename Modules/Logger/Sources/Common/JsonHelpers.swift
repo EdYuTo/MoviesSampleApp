@@ -7,8 +7,8 @@
 
 import Foundation
 
-enum JsonHelpers {
-    static func prettyPrintedString(from dictionary: [AnyHashable: Any]?) -> String {
+public enum JsonHelpers {
+    public static func prettyPrintedString(from dictionary: [AnyHashable: Any]?) -> String {
         let dictionary = dictionary ?? [:]
         guard JSONSerialization.isValidJSONObject(dictionary) else {
             return "\(dictionary)"
@@ -18,7 +18,7 @@ enum JsonHelpers {
         )
     }
 
-    static func prettyPrintedString(from data: Data?) -> String {
+    public static func prettyPrintedString(from data: Data?) -> String {
         let emptyData = "{\n\n}"
         guard let data = data else { return emptyData }
         do {

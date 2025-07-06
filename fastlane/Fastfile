@@ -21,6 +21,7 @@ platform :ios do
   lane :generate_project do |options|
     clean_project
     generate_cache_module
+    generate_logger_module
     generate_network_module
     Dir.chdir('..') do
       message('Generating Xcode project')
@@ -43,6 +44,14 @@ platform :ios do
   lane :generate_cache_module do
     Dir.chdir('../Modules/Cache') do
       message('Generating Cache module')
+      sh 'bundle exec ../../Scripts/xcodegen'
+    end
+  end
+
+  desc 'Generates Logger module'
+  lane :generate_logger_module do
+    Dir.chdir('../Modules/Logger') do
+      message('Generating Logger module')
       sh 'bundle exec ../../Scripts/xcodegen'
     end
   end
