@@ -71,6 +71,7 @@ final class MovieListViewController: UIViewController {
 // MARK: - UITextFieldDelegate
 extension MovieListViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        interactor.immediateSearch(textField.text ?? String())
         searchBar.resignFirstResponder()
         return true
     }
@@ -79,11 +80,7 @@ extension MovieListViewController: UITextFieldDelegate {
 // MARK: - UISearchBarDelegate
 extension MovieListViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        interactor.search(searchText)
-    }
-
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder()
+        interactor.debouncedSearch(searchText)
     }
 }
 

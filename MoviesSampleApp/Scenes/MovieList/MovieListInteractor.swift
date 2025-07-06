@@ -9,7 +9,8 @@ import Foundation
 
 protocol MovieListInteractorProtocol {
     func fetchData()
-    func search(_ text: String)
+    func debouncedSearch(_ text: String)
+    func immediateSearch(_ text: String)
 }
 
 final class MovieListInteractor {
@@ -18,10 +19,13 @@ final class MovieListInteractor {
     private var currentPage = 1
     private var isLoading = false
     private var data = [MovieRemoteModel]()
+    private var searchTask: Task<Void, Never>?
+    private let debounceTime: Double
 
-    init(presenter: MovieListPresenterProtocol, networkProvider: NetworkProviderProtocol) {
+    init(presenter: MovieListPresenterProtocol, networkProvider: NetworkProviderProtocol, debounceTime: Double = 0.5) {
         self.presenter = presenter
         self.networkProvider = networkProvider
+        self.debounceTime = debounceTime
     }
 }
 
@@ -56,16 +60,25 @@ extension MovieListInteractor: MovieListInteractorProtocol {
         }
     }
 
-    func search(_ text: String) {
-        guard !text.isEmpty else {
-            presenter.presentData(movieList: data)
-            presenter.presentLoading()
-            return
+    func immediateSearch(_ text: String) {
+        searchTask?.cancel()
+        searchTask = nil
+        search(text)
+    }
+
+    func debouncedSearch(_ text: String) {
+        searchTask?.cancel()
+        searchTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                let debounceTime = UInt64(debounceTime * Constants.secondsInNano)
+                try await Task.sleep(nanoseconds: debounceTime)
+                try Task.checkCancellation()
+                search(text)
+            } catch {
+                return
+            }
         }
-        let resultList = data.filter { movie in
-            movie.title.lowercased().contains(text.lowercased())
-        }
-        presenter.presentSearch(resultList: resultList)
     }
 }
 
@@ -73,6 +86,7 @@ private extension MovieListInteractor {
     // MARK: - Constants
     enum Constants {
         static let firstPage = 1
+        static let secondsInNano = 1_000_000_000.0
     }
 
     // MARK: - Helpers
@@ -97,5 +111,17 @@ private extension MovieListInteractor {
 
     func finishLoading() {
         isLoading = false
+    }
+
+    func search(_ text: String) {
+        guard !text.isEmpty else {
+            presenter.presentData(movieList: data)
+            presenter.presentLoading()
+            return
+        }
+        let resultList = data.filter { movie in
+            movie.title.lowercased().contains(text.lowercased())
+        }
+        presenter.presentSearch(resultList: resultList)
     }
 }
