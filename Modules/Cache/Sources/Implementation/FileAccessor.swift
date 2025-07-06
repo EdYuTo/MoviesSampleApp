@@ -7,31 +7,25 @@
 
 import Foundation
 
-protocol FileAccessorProtocol {
-    func get() async throws -> Data
-    func set(_ data: Data) async throws
-    func delete() async throws
-}
-
-actor FileAccessor {
+public actor FileAccessor {
     private let fileUrl: URL
 
-    init(fileUrl: URL) {
+    public init(fileUrl: URL) {
         self.fileUrl = fileUrl
     }
 }
 
 // MARK: - FileAccessorProtocol
 extension FileAccessor: FileAccessorProtocol {
-    func get() async throws -> Data {
+    public func get() async throws -> Data {
         try Data(contentsOf: fileUrl)
     }
 
-    func set(_ data: Data) async throws {
+    public func set(_ data: Data) async throws {
         try data.write(to: fileUrl)
     }
 
-    func delete() async throws {
+    public func delete() async throws {
         try FileManager.default.removeItem(at: fileUrl)
     }
 }

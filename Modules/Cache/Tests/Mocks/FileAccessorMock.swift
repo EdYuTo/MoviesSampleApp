@@ -5,8 +5,7 @@
 //  Created by Edson Yudi Toma on 02/07/25.
 //
 
-@testable
-import MoviesSampleApp
+import CacheProvider
 import XCTest
 
 final class FileAccessorMock: FileAccessorProtocol {

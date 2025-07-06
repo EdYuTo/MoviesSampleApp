@@ -35,6 +35,14 @@ Generates the project
 
 Opens the project
 
+### ios generate_cache_module
+
+```sh
+[bundle exec] fastlane ios generate_cache_module
+```
+
+Generates Cache module
+
 ### ios generate_network_module
 
 ```sh

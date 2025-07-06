@@ -5,9 +5,8 @@
 //  Created by Edson Yudi Toma on 02/07/25.
 //
 
+import CacheProvider
 import CryptoKit
-@testable
-import MoviesSampleApp
 import XCTest
 
 final class CacheProviderTests: XCTestCase {

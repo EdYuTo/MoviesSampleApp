@@ -7,20 +7,12 @@
 
 import Foundation
 
-protocol CacheProviderProtocol {
-    typealias Key = Encodable
-
-    func get<T: Codable>(key: Key) async throws -> T
-    func set<T: Codable>(key: Key, value: T) async throws
-    func delete(key: Key) async throws
-}
-
-final class CacheProvider {
+public final class CacheProvider {
     private let storagePath: URL
     private let dateProvider: () -> Date
     private let fileAccessorProvider: (URL) -> FileAccessorProtocol
 
-    init(
+    public init(
         storagePath: URL,
         dateProvider: @escaping @autoclosure () -> Date = Date(),
         fileAccessorProvider: @escaping (URL) -> FileAccessorProtocol = { FileAccessor(fileUrl: $0) }
@@ -29,19 +21,11 @@ final class CacheProvider {
         self.dateProvider = dateProvider
         self.fileAccessorProvider = fileAccessorProvider
     }
-
-    private func getFileAccessor(forKey key: Key) throws -> FileAccessorProtocol {
-        guard let hashedKey = key.cacheKey else {
-            throw CacheError.invalidKey
-        }
-        let url = storagePath.appendingPathComponent(hashedKey)
-        return fileAccessorProvider(url)
-    }
 }
 
 // MARK: - CacheProviderProtocol
 extension CacheProvider: CacheProviderProtocol {
-    func get<T: Codable>(key: Key) async throws -> T {
+    public func get<T: Codable>(key: Key) async throws -> T {
         let accessor = try getFileAccessor(forKey: key)
         guard let data = try? await accessor.get() else {
             throw CacheError.notFound(key: key)
@@ -55,7 +39,7 @@ extension CacheProvider: CacheProviderProtocol {
         }
     }
 
-    func set<T: Codable>(key: Key, value: T) async throws {
+    public func set<T: Codable>(key: Key, value: T) async throws {
         let accessor = try getFileAccessor(forKey: key)
         do {
             let encoder = JSONEncoder()
@@ -69,7 +53,7 @@ extension CacheProvider: CacheProviderProtocol {
         }
     }
 
-    func delete(key: Key) async throws {
+    public func delete(key: Key) async throws {
         let accessor = try getFileAccessor(forKey: key)
         do {
             try await accessor.delete()
@@ -79,10 +63,19 @@ extension CacheProvider: CacheProviderProtocol {
     }
 }
 
-// MARK: - Custom types
 private extension CacheProvider {
+    // MARK: - Custom types
     struct TimestampedData<T: Codable>: Codable {
         let data: T
         let timestamp: Date
+    }
+
+    // MARK: - Helpers
+    func getFileAccessor(forKey key: Key) throws -> FileAccessorProtocol {
+        guard let hashedKey = key.cacheKey else {
+            throw CacheError.invalidKey
+        }
+        let url = storagePath.appendingPathComponent(hashedKey)
+        return fileAccessorProvider(url)
     }
 }

@@ -40,6 +40,8 @@ settings:
       SWIFT_COMPILATION_MODE: wholemodule
 
 projectReferences:
+  Cache:
+    path: Modules/Cache/Cache.xcodeproj
   Network:
     path: Modules/Network/Network.xcodeproj
 
@@ -49,6 +51,7 @@ targets:
     platform: iOS
     sources: [MoviesSampleApp]
     dependencies:
+      - target: Cache/CacheProvider
       - target: Network/NetworkProvider
     postBuildScripts:
       - script: chmod +x ./Scripts/lint-checker
@@ -95,16 +98,20 @@ schemes:
         MoviesSampleApp: all
         MoviesSampleAppTests: [test]
         MoviesSampleAppUITests: [test]
+        Cache/CacheProvider: [test]
         Network/NetworkProvider: [test]
     test:
       gatherCoverageData: YES
       coverageTargets:
         - MoviesSampleApp
+        - Cache/CacheProvider
         - Network/NetworkProvider
       targets:
         - name: MoviesSampleAppTests
           paralelizable: true
         - name: MoviesSampleAppUITests
+          paralelizable: true
+        - name: Cache/CacheProviderTests
           paralelizable: true
         - name: Network/NetworkProviderTests
           paralelizable: true
