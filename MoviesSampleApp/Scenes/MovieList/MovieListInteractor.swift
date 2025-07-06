@@ -26,8 +26,7 @@ final class MovieListInteractor {
 // MARK: - MovieListInteractorProtocol
 extension MovieListInteractor: MovieListInteractorProtocol {
     func fetchData() {
-        guard !isLoading else { return }
-        isLoading = true
+        guard shouldFetchMoreDataIfNotLoading() else { return }
         Task { [weak self] in
             guard let self else { return }
             do {
@@ -37,7 +36,7 @@ extension MovieListInteractor: MovieListInteractorProtocol {
                 await MainActor.run {
                     self.presenter.presentData(movieList: response.content)
                     self.currentPage += 1
-                    self.isLoading = false
+                    self.finishLoading()
                 }
             } catch {
                 await MainActor.run {
@@ -46,14 +45,14 @@ extension MovieListInteractor: MovieListInteractorProtocol {
                     } else {
                         self.presenter.presentFetchError()
                     }
-                    self.isLoading = false
+                    self.finishLoading()
                 }
             }
         }
     }
 }
 
-fileprivate extension MovieListInteractor {
+private extension MovieListInteractor {
     // MARK: - Constants
     enum Constants {
         static let firstPage = 1
@@ -71,5 +70,15 @@ fileprivate extension MovieListInteractor {
                 "sort_by": "popularity.desc"
             ]
         )
+    }
+
+    func shouldFetchMoreDataIfNotLoading() -> Bool {
+        guard !isLoading else { return false }
+        isLoading = true
+        return true
+    }
+
+    func finishLoading() {
+        isLoading = false
     }
 }
