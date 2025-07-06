@@ -16,14 +16,11 @@ final class MoviesSampleApp: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         let networkProvider = NetworkProvider(session: AuthorizedURLSession.shared)
+        let networkDebugDecorator = NetworkDebugDecorator(provider: networkProvider)
         let cacheProvider = CacheProvider(storagePath: cacheDirectory())
-        let router = MovieListRouter(networkProvider: networkProvider, cacheProvider: cacheProvider)
+        let router = MovieListRouter(networkProvider: networkDebugDecorator, cacheProvider: cacheProvider)
         let initialViewController = router.start()
         let navigationController = UINavigationController(rootViewController: initialViewController)
-
-        #if DEBUG
-        URLProtocol.registerClass(NetworkDebugLogger.self)
-        #endif
 
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.rootViewController = navigationController
