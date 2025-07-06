@@ -6,7 +6,7 @@
 - [x] Core networking
 - [x] Core caching
 - [x] Movie listing
-- [ ] Movie searching
+- [x] Movie searching
 - [x] Movie details
 - [ ] Favoriting / saving movies
 - [ ] Better ui / animations
@@ -14,6 +14,7 @@
 - [ ] Migrate to combine
 - [ ] Migrate to SwiftTesting
 - [ ] Add cache expiry logic
+- [ ] Use api search instead of local search
 
 ## Dependencies
 This projects uses [Xcodegen](https://github.com/yonaskolb/XcodeGen), [Fastlane](https://fastlane.tools/) and [Bundler](https://bundler.io/) to minimize your time setting up everything! It also has [Swiftlint](https://realm.github.io/SwiftLint/) to ensure code coding style and conventions.
