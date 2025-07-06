@@ -9,24 +9,42 @@ import UIKit
 
 protocol MovieListViewProtocol: UIViewController {
     func displayData(_ movieStateList: [MovieViewState])
+    func resetData()
     func displayError()
     func displayInternetError()
 }
 
 final class MovieListViewController: UIViewController {
     // MARK: - Properties
+    private typealias DataSource = UITableViewDiffableDataSource<Int, MovieViewState>
+
     private let interactor: MovieListInteractorProtocol
     private let router: MovieListRouterProtocol
-    private var dataSource = [MovieViewState]()
+
+    private lazy var dataSource: DataSource = {
+        let dataSource = DataSource(tableView: tableView) { tableView, indexPath, item in
+            MovieTableViewCellController.dequeue(tableView, cellForRowAt: indexPath, withItem: item)
+        }
+        dataSource.defaultRowAnimation = .fade
+        return dataSource
+    }()
 
     // MARK: - Views
+    lazy var searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        searchBar.delegate = self
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        if let textField = searchBar.value(forKey: "searchField") as? UITextField {
+            textField.delegate = self
+            textField.enablesReturnKeyAutomatically = false
+        }
+        return searchBar
+    }()
+
     lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.delegate = self
-        tableView.dataSource = self
-        tableView.register(MovieListCell.self, forCellReuseIdentifier: MovieListCell.reuseIdentifier)
-        tableView.register(LoadingTableViewCell.self, forCellReuseIdentifier: LoadingTableViewCell.reuseIdentifier)
-        tableView.register(ErrorTableViewCell.self, forCellReuseIdentifier: ErrorTableViewCell.reuseIdentifier)
+        MovieTableViewCellController.register(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
@@ -50,16 +68,37 @@ final class MovieListViewController: UIViewController {
     }
 }
 
+// MARK: - UITextFieldDelegate
+extension MovieListViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        interactor.immediateSearch(textField.text ?? String())
+        searchBar.resignFirstResponder()
+        return true
+    }
+}
+
+// MARK: - UISearchBarDelegate
+extension MovieListViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        interactor.debouncedSearch(searchText)
+    }
+}
+
 // MARK: - ViewCodeProtocol
 extension MovieListViewController: ViewCodeProtocol {
     func setupHierarchy() {
+        view.addSubview(searchBar)
         view.addSubview(tableView)
     }
 
     func setupConstraints() {
         NSLayoutConstraint.activate([
+            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
@@ -67,100 +106,57 @@ extension MovieListViewController: ViewCodeProtocol {
 
     func setupConfigurations() {
         title = Localizable.movieListTitle.localized
+        tableView.dataSource = dataSource
+        var snapshot = NSDiffableDataSourceSnapshot<Int, MovieViewState>()
+        snapshot.appendSections([0])
+        snapshot.appendItems([.loading])
+        dataSource.apply(snapshot, animatingDifferences: false)
     }
 }
 
-// MARK: - UITableViewDelegate, UITableViewDataSource
-extension MovieListViewController: UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        dataSource.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.row < dataSource.count {
-            switch dataSource[indexPath.row] {
-            case let .success(model):
-                return dequeueMovieCell(tableView, indexPath, model)
-            case .loading:
-                interactor.fetchData()
-                return dequeueLoadingCell(tableView, indexPath)
-            case .error:
-                return dequeueErrorCell(tableView, indexPath)
-            }
-        }
-        return UITableViewCell()
-    }
-
+// MARK: - UITableViewDelegate
+extension MovieListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        guard indexPath.row < dataSource.count else {
+        guard let model = dataSource.itemIdentifier(for: indexPath) else {
             return
         }
-        switch dataSource[indexPath.row] {
+        switch model {
         case let .success(model):
             router.openDetails(id: model.id)
         case .error:
-            replaceLastState(with: .loading)
+            displayData([.loading])
             interactor.fetchData()
         default:
             break
         }
     }
 
-    private func dequeueMovieCell(
-        _ tableView: UITableView,
-        _ indexPath: IndexPath,
-        _ model: MovieViewModel
-    ) -> UITableViewCell {
-        guard let viewCell = tableView.dequeueReusableCell(
-            withIdentifier: MovieListCell.reuseIdentifier,
-            for: indexPath
-        ) as? MovieListCell else {
-            return UITableViewCell()
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if let model = dataSource.itemIdentifier(for: indexPath), model == .loading {
+            interactor.fetchData()
         }
-        viewCell.setup(model)
-        return viewCell
-    }
-
-    func dequeueLoadingCell(_ tableView: UITableView, _ indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: LoadingTableViewCell.reuseIdentifier,
-            for: indexPath
-        )
-        cell.selectionStyle = .none
-        return cell
-    }
-
-    func dequeueErrorCell(_ tableView: UITableView, _ indexPath: IndexPath) -> UITableViewCell {
-        tableView.dequeueReusableCell(
-            withIdentifier: ErrorTableViewCell.reuseIdentifier,
-            for: indexPath
-        )
     }
 }
 
 // MARK: - MovieListViewProtocol
 extension MovieListViewController: MovieListViewProtocol {
     func displayData(_ movieStateList: [MovieViewState]) {
-        let size = dataSource.count
-        _ = dataSource.popLast()
-        dataSource.append(contentsOf: movieStateList)
-        if size == 0 {
-            tableView.reloadData()
-        } else {
-            let loadingIndex = IndexPath(row: size-1, section: .zero)
-            let newRows = (size-1..<dataSource.count).map { row in
-                IndexPath(row: row, section: 0)
-            }
-            tableView.beginUpdates()
-            tableView.deleteRows(at: [loadingIndex], with: .fade)
-            tableView.insertRows(at: newRows, with: .fade)
-            tableView.endUpdates()
-        }
+        var snapshot = dataSource.snapshot()
+        snapshot.deleteItems([.error, .loading])
+        snapshot.appendItems(movieStateList)
+        dataSource.apply(snapshot, animatingDifferences: true)
+    }
+
+    func resetData() {
+        var snapshot = dataSource.snapshot()
+        snapshot.deleteAllItems()
+        snapshot.appendSections([0])
+        dataSource.apply(snapshot, animatingDifferences: true)
     }
 
     func displayError() {
-        if dataSource.count == 0 {
+        if dataSource.itemIdentifier(for: .init(row: 0, section: 0)) == nil {
             let alert = makeAlertView(
                 title: Localizable.errorAlertTitle.localized,
                 buttonTitle: Localizable.retryButtonTitle.localized
@@ -169,7 +165,7 @@ extension MovieListViewController: MovieListViewProtocol {
             }
             router.present(alert)
         } else {
-            replaceLastState(with: .error)
+            displayData([.error])
         }
     }
 
@@ -182,12 +178,5 @@ extension MovieListViewController: MovieListViewProtocol {
             self?.interactor.fetchData()
         }
         router.present(alert)
-    }
-
-    private func replaceLastState(with model: MovieViewState) {
-        _ = dataSource.popLast()
-        dataSource.append(model)
-        let lastIndex = IndexPath(row: dataSource.count-1, section: .zero)
-        tableView.reloadRows(at: [lastIndex], with: .fade)
     }
 }

@@ -6,7 +6,9 @@
 //
 
 protocol MovieListPresenterProtocol {
-    func presentData(movieList: MovieListRemoteModel)
+    func presentData(movieList: [MovieRemoteModel])
+    func presentSearch(resultList: [MovieRemoteModel])
+    func presentLoading()
     func presentFetchError()
     func presentInternetError()
 }
@@ -17,24 +19,27 @@ final class MovieListPresenter {
 
 // MARK: - MovieListPresenterProtocol
 extension MovieListPresenter: MovieListPresenterProtocol {
-    func presentData(movieList: MovieListRemoteModel) {
-        var data: [MovieViewState] = movieList.results.map { movie in
-            let date = movie.releaseDate.toDate(format: Constants.dateFormat)
-            return MovieViewState.success(
-                MovieViewModel(
-                    id: movie.id,
-                    title: movie.title,
-                    releaseDate: date.formatted(date: .numeric, time: .omitted),
-                    poster: Constants.imageBaseUrl + (movie.backdropPath ?? movie.posterPath),
-                    score: movie.voteAverage,
-                    originalLanguage: movie.originalLanguage ?? String()
-                )
+    func presentData(movieList: [MovieRemoteModel]) {
+        let data: [MovieViewState] = movieList.map { movie in
+            MovieViewState.success(
+                remoteToViewModel(movie)
             )
         }
-        if !data.isEmpty {
-            data.append(MovieViewState.loading)
-        }
         view?.displayData(data)
+    }
+
+    func presentSearch(resultList: [MovieRemoteModel]) {
+        let data: [MovieViewState] = resultList.map { movie in
+            MovieViewState.success(
+                remoteToViewModel(movie)
+            )
+        }
+        view?.resetData()
+        view?.displayData(data)
+    }
+
+    func presentLoading() {
+        view?.displayData([.loading])
     }
 
     func presentFetchError() {
@@ -46,10 +51,23 @@ extension MovieListPresenter: MovieListPresenterProtocol {
     }
 }
 
-fileprivate extension MovieListPresenter {
+private extension MovieListPresenter {
     // MARK: - Constants
     enum Constants {
         static let dateFormat = "yyyy-MM-dd"
         static let imageBaseUrl = "https://image.tmdb.org/t/p/h100"
+    }
+
+    // MARK: - Helpers
+    func remoteToViewModel(_ movie: MovieRemoteModel) -> MovieViewModel {
+        let date = movie.releaseDate.toDate(format: Constants.dateFormat)
+        return MovieViewModel(
+            id: movie.id,
+            title: movie.title,
+            releaseDate: date.formatted(date: .numeric, time: .omitted),
+            poster: Constants.imageBaseUrl + (movie.backdropPath ?? movie.posterPath),
+            score: movie.voteAverage,
+            originalLanguage: movie.originalLanguage ?? String()
+        )
     }
 }
