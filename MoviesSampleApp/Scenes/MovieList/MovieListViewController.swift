@@ -9,6 +9,7 @@ import UIKit
 
 protocol MovieListViewProtocol: UIViewController {
     func displayData(_ movieStateList: [MovieViewState])
+    func resetData()
     func displayError()
     func displayInternetError()
 }
@@ -16,8 +17,10 @@ protocol MovieListViewProtocol: UIViewController {
 final class MovieListViewController: UIViewController {
     // MARK: - Properties
     private typealias DataSource = UITableViewDiffableDataSource<Int, MovieViewState>
+
     private let interactor: MovieListInteractorProtocol
     private let router: MovieListRouterProtocol
+
     private lazy var dataSource: DataSource = {
         let dataSource = DataSource(tableView: tableView) { tableView, indexPath, item in
             MovieTableViewCellController.dequeue(tableView, cellForRowAt: indexPath, withItem: item)
@@ -27,6 +30,17 @@ final class MovieListViewController: UIViewController {
     }()
 
     // MARK: - Views
+    lazy var searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        searchBar.delegate = self
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        if let textField = searchBar.value(forKey: "searchField") as? UITextField {
+            textField.delegate = self
+            textField.enablesReturnKeyAutomatically = false
+        }
+        return searchBar
+    }()
+
     lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.delegate = self
@@ -54,16 +68,37 @@ final class MovieListViewController: UIViewController {
     }
 }
 
+// MARK: - UITextFieldDelegate
+extension MovieListViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        interactor.immediateSearch(textField.text ?? String())
+        searchBar.resignFirstResponder()
+        return true
+    }
+}
+
+// MARK: - UISearchBarDelegate
+extension MovieListViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        interactor.debouncedSearch(searchText)
+    }
+}
+
 // MARK: - ViewCodeProtocol
 extension MovieListViewController: ViewCodeProtocol {
     func setupHierarchy() {
+        view.addSubview(searchBar)
         view.addSubview(tableView)
     }
 
     func setupConstraints() {
         NSLayoutConstraint.activate([
+            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
@@ -71,6 +106,7 @@ extension MovieListViewController: ViewCodeProtocol {
 
     func setupConfigurations() {
         title = Localizable.movieListTitle.localized
+        tableView.dataSource = dataSource
         var snapshot = NSDiffableDataSourceSnapshot<Int, MovieViewState>()
         snapshot.appendSections([0])
         snapshot.appendItems([.loading])
@@ -109,6 +145,13 @@ extension MovieListViewController: MovieListViewProtocol {
         var snapshot = dataSource.snapshot()
         snapshot.deleteItems([.error, .loading])
         snapshot.appendItems(movieStateList)
+        dataSource.apply(snapshot, animatingDifferences: true)
+    }
+
+    func resetData() {
+        var snapshot = dataSource.snapshot()
+        snapshot.deleteAllItems()
+        snapshot.appendSections([0])
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 
