@@ -9,6 +9,7 @@ import Foundation
 
 protocol MovieListInteractorProtocol {
     func fetchData()
+    func search(_ text: String)
 }
 
 final class MovieListInteractor {
@@ -16,6 +17,7 @@ final class MovieListInteractor {
     private let networkProvider: NetworkProviderProtocol
     private var currentPage = 1
     private var isLoading = false
+    private var data = [MovieRemoteModel]()
 
     init(presenter: MovieListPresenterProtocol, networkProvider: NetworkProviderProtocol) {
         self.presenter = presenter
@@ -34,7 +36,10 @@ extension MovieListInteractor: MovieListInteractorProtocol {
                 let request = movieListRequest(page: currentPage, locale: local)
                 let response: NetworkResponse<MovieListRemoteModel> = try await networkProvider.makeRequest(request)
                 await MainActor.run {
-                    self.presenter.presentData(movieList: response.content)
+                    let movieList = response.content.results
+                    self.data.append(contentsOf: movieList)
+                    self.presenter.presentData(movieList: movieList)
+                    self.presenter.presentLoading()
                     self.currentPage += 1
                     self.finishLoading()
                 }
@@ -49,6 +54,18 @@ extension MovieListInteractor: MovieListInteractorProtocol {
                 }
             }
         }
+    }
+
+    func search(_ text: String) {
+        guard !text.isEmpty else {
+            presenter.presentData(movieList: data)
+            presenter.presentLoading()
+            return
+        }
+        let resultList = data.filter { movie in
+            movie.title.lowercased().contains(text.lowercased())
+        }
+        presenter.presentSearch(resultList: resultList)
     }
 }
 
