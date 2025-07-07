@@ -15,6 +15,8 @@
 - [ ] Migrate to SwiftTesting
 - [ ] Add cache expiry logic
 - [ ] Use api search instead of local search
+- [x] Modules for each core dependency
+- [ ] Modules with custom tests and actions
 
 ## Dependencies
 This projects uses [Xcodegen](https://github.com/yonaskolb/XcodeGen), [Fastlane](https://fastlane.tools/) and [Bundler](https://bundler.io/) to minimize your time setting up everything! It also has [Swiftlint](https://realm.github.io/SwiftLint/) to ensure code coding style and conventions.
