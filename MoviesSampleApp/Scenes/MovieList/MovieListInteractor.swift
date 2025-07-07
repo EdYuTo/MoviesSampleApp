@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NetworkProvider
 
 protocol MovieListInteractorProtocol {
     func fetchData()
