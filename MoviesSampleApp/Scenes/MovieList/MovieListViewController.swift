@@ -111,6 +111,11 @@ extension MovieListViewController: ViewCodeProtocol {
         snapshot.appendSections([0])
         snapshot.appendItems([.loading])
         dataSource.apply(snapshot, animatingDifferences: false)
+        tabBarItem = UITabBarItem(
+            title: title,
+            image: UIImage(systemName: "film.stack"),
+            selectedImage: UIImage(systemName: "film.stack.fill")
+        )
     }
 }
 
