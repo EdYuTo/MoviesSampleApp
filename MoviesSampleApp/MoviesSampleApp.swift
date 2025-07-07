@@ -19,8 +19,12 @@ final class MoviesSampleApp: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         let networkProvider = NetworkProvider(session: AuthorizedURLSession.shared)
         let networkDebugDecorator = NetworkDebugDecorator(provider: networkProvider)
+
         let cacheProvider = CacheProvider(storagePath: cacheDirectory())
-        let router = MovieListRouter(networkProvider: networkDebugDecorator, cacheProvider: cacheProvider)
+        let cacheDebugDecorator = CacheDebugDecorator(provider: cacheProvider)
+
+        let router = MovieListRouter(networkProvider: networkDebugDecorator, cacheProvider: cacheDebugDecorator)
+
         let initialViewController = router.start()
         let navigationController = UINavigationController(rootViewController: initialViewController)
 
