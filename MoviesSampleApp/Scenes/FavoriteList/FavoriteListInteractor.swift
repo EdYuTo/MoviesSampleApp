@@ -17,14 +17,26 @@ protocol FavoriteListInteractorProtocol {
 final class FavoriteListInteractor {
     private let presenter: FavoriteListPresenterProtocol
     private let cacheProvider: CacheProviderProtocol
-    private var data = [MovieDetailsRemoteModel]()
+    private var data: [Int: MovieDetailsRemoteModel] = [:]
     private var searchTask: Task<Void, Never>?
     private let debounceTime: Double
+    private var searchedText = String()
 
     init(presenter: FavoriteListPresenterProtocol, cacheProvider: CacheProviderProtocol, debounceTime: Double = 0.5) {
         self.presenter = presenter
         self.cacheProvider = cacheProvider
         self.debounceTime = debounceTime
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateFavoriteList),
+            name: .movieFavorited,
+            object: nil
+        )
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
 
@@ -35,13 +47,16 @@ extension FavoriteListInteractor: FavoriteListInteractorProtocol {
         Task { [weak self] in
             guard let self else { return }
             let favoritesId = await favoriteList()
-            var favoritesList = [MovieDetailsRemoteModel?]()
-            for id in favoritesId {
-                favoritesList.append(try? await self.cacheProvider.get(key: id))
+            data = data.filter { favoritesId.contains($0.key) }
+            for id in favoritesId where data[id] == nil {
+                data[id] = try? await self.cacheProvider.get(key: id)
             }
-            data = favoritesList.compactMap({ $0 })
             await MainActor.run {
-                self.presenter.presentData(self.data)
+                if self.searchedText.isEmpty {
+                    self.presenter.presentData(Array(self.data.values))
+                } else {
+                    self.immediateSearch(self.searchedText)
+                }
             }
         }
     }
@@ -76,11 +91,12 @@ private extension FavoriteListInteractor {
 
     // MARK: - Helpers
     func search(_ text: String) {
+        searchedText = text
         guard !text.isEmpty else {
-            presenter.presentData(data)
+            presenter.presentData(Array(data.values))
             return
         }
-        let resultList = data.filter { movie in
+        let resultList = data.values.filter { movie in
             movie.title.lowercased().contains(text.lowercased())
         }
         presenter.presentData(resultList)
@@ -88,5 +104,10 @@ private extension FavoriteListInteractor {
 
     func favoriteList() async -> Set<Int> {
         (try? await cacheProvider.get(key: "favoriteList")) ?? []
+    }
+
+    @objc
+    func updateFavoriteList(_ notification: Notification) {
+        fetchData()
     }
 }

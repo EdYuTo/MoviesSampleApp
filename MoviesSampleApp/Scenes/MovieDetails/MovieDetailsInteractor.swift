@@ -74,6 +74,11 @@ extension MovieDetailsInteractor: MovieDetailsInteractorProtocol {
                 try? await cacheProvider.set(key: id, value: data)
             }
             try? await cacheProvider.set(key: "favoriteList", value: favoriteList)
+            NotificationCenter.default.post(
+                name: .movieFavorited,
+                object: nil,
+                userInfo: ["movie": id]
+            )
         }
     }
 }
@@ -94,4 +99,8 @@ private extension MovieDetailsInteractor {
     func isFavorite() async -> Bool {
         await favoriteList().contains(id)
     }
+}
+
+extension Notification.Name {
+    static let movieFavorited = Notification.Name("MovieFavorited")
 }
