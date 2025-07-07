@@ -19,6 +19,7 @@ final class MovieDetailsInteractor {
     private let networkProvider: NetworkProviderProtocol
     private let cacheProvider: CacheProviderProtocol
     private let id: Int
+    private var data: MovieDetailsRemoteModel?
 
     init(
         presenter: MovieDetailsPresenterProtocol,
@@ -36,21 +37,23 @@ final class MovieDetailsInteractor {
 // MARK: - MovieDetailsInteractorProtocol
 extension MovieDetailsInteractor: MovieDetailsInteractorProtocol {
     func fetchData() {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 let local = Locale.customLanguageCode
                 let request = movieDetailsRequest(id: id, locale: local)
                 let response: NetworkResponse<MovieDetailsRemoteModel> = try await networkProvider.makeRequest(request)
                 let isFavorite = await isFavorite()
+                data = response.content
                 await MainActor.run {
-                    presenter.presentData(movieDetails: response.content, isFavorite: isFavorite)
+                    self.presenter.presentData(movieDetails: response.content, isFavorite: isFavorite)
                 }
             } catch {
                 await MainActor.run {
                     if let error = error as? NetworkError, case .connectionError = error {
-                        presenter.presentInternetError()
+                        self.presenter.presentInternetError()
                     } else {
-                        presenter.presentFetchError()
+                        self.presenter.presentFetchError()
                     }
                 }
             }
@@ -58,14 +61,17 @@ extension MovieDetailsInteractor: MovieDetailsInteractorProtocol {
     }
 
     func toggleFavorite() {
-        Task { @MainActor in
+        Task { @MainActor [weak self] in
+            guard let self else { return }
             var favoriteList = await favoriteList()
             if favoriteList.contains(id) {
                 favoriteList.remove(id)
                 presenter.presentUnfavorite()
+                try? await cacheProvider.delete(key: id)
             } else {
                 favoriteList.insert(id)
                 presenter.presentFavorite()
+                try? await cacheProvider.set(key: id, value: data)
             }
             try? await cacheProvider.set(key: "favoriteList", value: favoriteList)
         }
