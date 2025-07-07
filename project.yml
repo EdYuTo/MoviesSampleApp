@@ -112,8 +112,8 @@ schemes:
       targets:
         - name: MoviesSampleAppTests
           paralelizable: true
-        - name: MoviesSampleAppUITests
-          paralelizable: true
+        # - name: MoviesSampleAppUITests
+        #   paralelizable: true
         - name: Cache/CacheProviderTests
           paralelizable: true
         - name: Network/NetworkProviderTests

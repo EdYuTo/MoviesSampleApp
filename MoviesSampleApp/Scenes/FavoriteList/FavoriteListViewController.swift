@@ -1,25 +1,22 @@
 //
-//  MovieListViewController.swift
+//  FavoriteListViewController.swift
 //  MoviesSampleApp
 //
-//  Created by Edson Yudi Toma on 18/05/25.
+//  Created by Edson Yudi Toma on 07/07/25.
 //
 
 import UIKit
 
-protocol MovieListViewProtocol: UIViewController {
+protocol FavoriteListViewProtocol: UIViewController {
     func displayData(_ movieStateList: [MovieViewState])
-    func resetData()
-    func displayError()
-    func displayInternetError()
 }
 
-final class MovieListViewController: UIViewController {
+final class FavoriteListViewController: UIViewController {
     // MARK: - Properties
     private typealias DataSource = UITableViewDiffableDataSource<Int, MovieViewState>
 
-    private let interactor: MovieListInteractorProtocol
-    private let router: MovieListRouterProtocol
+    private let interactor: FavoriteListInteractorProtocol
+    private let router: FavoriteListRouterProtocol
 
     private lazy var dataSource: DataSource = {
         let dataSource = DataSource(tableView: tableView) { tableView, indexPath, item in
@@ -50,7 +47,7 @@ final class MovieListViewController: UIViewController {
     }()
 
     // MARK: - Life cycle
-    init(interactor: MovieListInteractorProtocol, router: MovieListRouterProtocol) {
+    init(interactor: FavoriteListInteractorProtocol, router: FavoriteListRouterProtocol) {
         self.interactor = interactor
         self.router = router
         super.init(nibName: nil, bundle: nil)
@@ -69,7 +66,7 @@ final class MovieListViewController: UIViewController {
 }
 
 // MARK: - UITextFieldDelegate
-extension MovieListViewController: UITextFieldDelegate {
+extension FavoriteListViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         interactor.immediateSearch(textField.text ?? String())
         searchBar.resignFirstResponder()
@@ -78,14 +75,14 @@ extension MovieListViewController: UITextFieldDelegate {
 }
 
 // MARK: - UISearchBarDelegate
-extension MovieListViewController: UISearchBarDelegate {
+extension FavoriteListViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         interactor.debouncedSearch(searchText)
     }
 }
 
 // MARK: - ViewCodeProtocol
-extension MovieListViewController: ViewCodeProtocol {
+extension FavoriteListViewController: ViewCodeProtocol {
     func setupHierarchy() {
         view.addSubview(searchBar)
         view.addSubview(tableView)
@@ -105,7 +102,7 @@ extension MovieListViewController: ViewCodeProtocol {
     }
 
     func setupConfigurations() {
-        title = Localizable.movieListTitle.localized
+        title = Localizable.favoriteListTitle.localized
         tableView.dataSource = dataSource
         var snapshot = NSDiffableDataSourceSnapshot<Int, MovieViewState>()
         snapshot.appendSections([0])
@@ -113,14 +110,14 @@ extension MovieListViewController: ViewCodeProtocol {
         dataSource.apply(snapshot, animatingDifferences: false)
         tabBarItem = UITabBarItem(
             title: title,
-            image: UIImage(systemName: "film.stack"),
-            selectedImage: UIImage(systemName: "film.stack.fill")
+            image: UIImage(systemName: "heart.circle"),
+            selectedImage: UIImage(systemName: "heart.circle.fill")
         )
     }
 }
 
 // MARK: - UITableViewDelegate
-extension MovieListViewController: UITableViewDelegate {
+extension FavoriteListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         guard let model = dataSource.itemIdentifier(for: indexPath) else {
@@ -129,60 +126,19 @@ extension MovieListViewController: UITableViewDelegate {
         switch model {
         case let .success(model):
             router.openDetails(id: model.id)
-        case .error:
-            displayData([.loading])
-            interactor.fetchData()
         default:
             break
         }
     }
-
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if let model = dataSource.itemIdentifier(for: indexPath), model == .loading {
-            interactor.fetchData()
-        }
-    }
 }
 
-// MARK: - MovieListViewProtocol
-extension MovieListViewController: MovieListViewProtocol {
+// MARK: - FavoriteListViewProtocol
+extension FavoriteListViewController: FavoriteListViewProtocol {
     func displayData(_ movieStateList: [MovieViewState]) {
-        var snapshot = dataSource.snapshot()
-        snapshot.deleteItems([.error, .loading])
-        snapshot.appendItems(movieStateList)
-        dataSource.apply(snapshot, animatingDifferences: true)
-    }
-
-    func resetData() {
         var snapshot = dataSource.snapshot()
         snapshot.deleteAllItems()
         snapshot.appendSections([0])
+        snapshot.appendItems(movieStateList)
         dataSource.apply(snapshot, animatingDifferences: true)
-    }
-
-    func displayError() {
-        let firstItem = dataSource.itemIdentifier(for: .init(row: 0, section: 0))
-        if firstItem == nil || firstItem == .error || firstItem == .loading {
-            let alert = makeAlertView(
-                title: Localizable.errorAlertTitle.localized,
-                buttonTitle: Localizable.retryButtonTitle.localized
-            ) { [weak self] in
-                self?.interactor.fetchData()
-            }
-            router.present(alert)
-        } else {
-            displayData([.error])
-        }
-    }
-
-    func displayInternetError() {
-        let alert = makeAlertView(
-            title: Localizable.internetErrorTitle.localized,
-            description: Localizable.internetErrorMessage.localized,
-            buttonTitle: Localizable.retryButtonTitle.localized
-        ) { [weak self] in
-            self?.interactor.fetchData()
-        }
-        router.present(alert)
     }
 }
