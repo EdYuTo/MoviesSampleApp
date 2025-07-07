@@ -35,7 +35,6 @@ final class MoviesSampleApp: UIResponder, UIApplicationDelegate {
         let tabController = UITabBarController(nibName: nil, bundle: nil)
         tabController.viewControllers = [movieListRouter.start(), favoriteListRouter.start()]
 
-
         let navigationController = UINavigationController(rootViewController: tabController)
 
         window = UIWindow(frame: UIScreen.main.bounds)
