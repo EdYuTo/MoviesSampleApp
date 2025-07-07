@@ -5,6 +5,7 @@
 //  Created by Edson Yudi Toma on 17/05/25.
 //
 
+import NetworkProvider
 import UIKit
 
 final class AsyncImageView: UIImageView {

@@ -5,7 +5,9 @@
 //  Created by Edson Yudi Toma on 18/05/25.
 //
 
+import CacheProvider
 import Foundation
+import NetworkProvider
 
 protocol MovieDetailsInteractorProtocol {
     func fetchData()
