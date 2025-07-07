@@ -156,7 +156,8 @@ extension MovieListViewController: MovieListViewProtocol {
     }
 
     func displayError() {
-        if dataSource.itemIdentifier(for: .init(row: 0, section: 0)) == nil {
+        let firstItem = dataSource.itemIdentifier(for: .init(row: 0, section: 0))
+        if firstItem == nil || firstItem == .error || firstItem == .loading {
             let alert = makeAlertView(
                 title: Localizable.errorAlertTitle.localized,
                 buttonTitle: Localizable.retryButtonTitle.localized
