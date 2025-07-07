@@ -17,6 +17,7 @@ enum Localizable: String {
     case movieDetailsReleaseDate
     case movieDetailsGenres
     case movieDetailsRating
+    case favoriteListTitle
 
     var localized: String {
         NSLocalizedString(rawValue, comment: String())
