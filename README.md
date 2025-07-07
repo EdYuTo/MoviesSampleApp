@@ -8,9 +8,11 @@
 - [x] Movie listing
 - [x] Movie searching
 - [x] Movie details
-- [ ] Favoriting / saving movies
+- [x] Favoriting / saving movies
+- [ ] Extract FavoriteUseCase
 - [ ] Better ui / animations
-- [ ] Add observability / logging lib
+- [ ] Add observability
+- [x] Add debug logging
 - [ ] Migrate to combine
 - [ ] Migrate to SwiftTesting
 - [ ] Add cache expiry logic
