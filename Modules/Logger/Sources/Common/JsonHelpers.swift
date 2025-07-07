@@ -8,6 +8,12 @@
 import Foundation
 
 public enum JsonHelpers {
+    public static func prettyPrintedString<T: Encodable>(from encodable: T?) -> String {
+        prettyPrintedString(
+            from: try? JSONEncoder().encode(encodable)
+        )
+    }
+
     public static func prettyPrintedString(from dictionary: [AnyHashable: Any]?) -> String {
         let dictionary = dictionary ?? [:]
         guard JSONSerialization.isValidJSONObject(dictionary) else {
