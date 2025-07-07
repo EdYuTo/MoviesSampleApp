@@ -23,10 +23,20 @@ final class MoviesSampleApp: UIResponder, UIApplicationDelegate {
         let cacheProvider = CacheProvider(storagePath: cacheDirectory())
         let cacheDebugDecorator = CacheDebugDecorator(provider: cacheProvider)
 
-        let router = MovieListRouter(networkProvider: networkDebugDecorator, cacheProvider: cacheDebugDecorator)
+        let movieListRouter = MovieListRouter(
+            networkProvider: networkDebugDecorator,
+            cacheProvider: cacheDebugDecorator
+        )
+        let favoriteListRouter = FavoriteListRouter(
+            networkProvider: networkDebugDecorator,
+            cacheProvider: cacheDebugDecorator
+        )
 
-        let initialViewController = router.start()
-        let navigationController = UINavigationController(rootViewController: initialViewController)
+        let tabController = UITabBarController(nibName: nil, bundle: nil)
+        tabController.viewControllers = [movieListRouter.start(), favoriteListRouter.start()]
+
+
+        let navigationController = UINavigationController(rootViewController: tabController)
 
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.rootViewController = navigationController
