@@ -47,6 +47,7 @@ targets:
     settings:
       base:
         GENERATE_INFOPLIST_FILE: 'YES'
+        INSTALL_PATH: "@rpath"
 
   CacheProviderTests:
     type: bundle.unit-test
